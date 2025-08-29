@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, MessageCircle, Heart, Share, Plus, TrendingUp, Users, BookOpen } from 'lucide-react';
-import { communityPosts } from '../../../Educaa/src/data/mockData';
+import { communityPosts } from '../data/mockData';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Community() {

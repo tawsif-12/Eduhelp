@@ -41,9 +41,9 @@ export default function AdminDashboard() {
   ];
 
   const recentUsers = [
-    { id: 1, name: 'Tawsif Bhai', email: 'tawsif@example.com', role: 'student', joinDate: '2025-01-15', status: 'active' },
-    { id: 2, name: 'Irfan bhai', email: 'irfan@example.com', role: 'teacher', joinDate: '2025-01-14', status: 'active' },
-    { id: 3, name: 'Dominic bhai', email: 'dominic@example.com', role: 'student', joinDate: '2025-01-13', status: 'pending' },
+    { id: 1, name: 'John Smith', email: 'john@example.com', role: 'student', joinDate: '2025-01-15', status: 'active' },
+    { id: 2, name: 'Sarah Wilson', email: 'sarah@example.com', role: 'teacher', joinDate: '2025-01-14', status: 'active' },
+    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', role: 'student', joinDate: '2025-01-13', status: 'pending' },
   ];
 
   return (
