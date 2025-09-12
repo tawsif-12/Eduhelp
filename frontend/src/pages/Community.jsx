@@ -63,7 +63,7 @@ export default function Community() {
                     onClick={() => setSelectedCategory(category)}
                     className={`w-full text-left px-3 py-2 rounded-xl transition-colors duration-200 ${
                       selectedCategory === category
-                        ? 'bg-blue-100 text-blue-600 font-medium'
+                        ? 'bg-violet-100 text-violet-600 font-medium'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
@@ -78,11 +78,11 @@ export default function Community() {
               <div className="bg-white rounded-2xl shadow-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
                 <div className="space-y-3">
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-3 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
+                  <button className="w-full bg-gradient-to-r from-green-600 to-orange-600 text-white py-3 px-4 rounded-xl font-medium hover:from-green-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
                     <Plus className="h-4 w-4" />
                     <span>Start Discussion</span>
                   </button>
-                  <button className="w-full border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl font-medium hover:border-blue-300 hover:text-blue-600 transition-colors duration-200 flex items-center justify-center space-x-2">
+                  <button className="w-full border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl font-medium hover:border-green-300 hover:text-green-600 transition-colors duration-200 flex items-center justify-center space-x-2">
                     <MessageCircle className="h-4 w-4" />
                     <span>Ask Question</span>
                   </button>
@@ -103,7 +103,7 @@ export default function Community() {
                       onClick={() => setActiveTab(tab.id)}
                       className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                         activeTab === tab.id
-                          ? 'border-blue-500 text-blue-600'
+                          ? 'border-violet-500 text-violet-600'
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                     >
@@ -123,7 +123,7 @@ export default function Community() {
                     placeholder="Search discussions, questions, or topics..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -142,10 +142,10 @@ export default function Community() {
                           />
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-2">
-                              <h3 className="text-lg font-bold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors duration-200">
+                              <h3 className="text-lg font-bold text-gray-900 hover:text-violet-600 cursor-pointer transition-colors duration-200">
                                 {post.title}
                               </h3>
-                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                              <span className="bg-violet-100 text-violet-800 px-2 py-1 rounded-full text-xs font-medium">
                                 {post.category}
                               </span>
                             </div>
@@ -160,7 +160,7 @@ export default function Community() {
                                   <Heart className="h-4 w-4" />
                                   <span>{post.likes}</span>
                                 </button>
-                                <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-500 transition-colors duration-200">
+                                <button className="flex items-center space-x-1 text-gray-500 hover:text-violet-500 transition-colors duration-200">
                                   <MessageCircle className="h-4 w-4" />
                                   <span>{post.replies}</span>
                                 </button>

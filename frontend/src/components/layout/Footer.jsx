@@ -10,7 +10,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="bg-gradient-to-r from-blue-600 to-emerald-600 p-2 rounded-lg">
+              <div className="bg-gradient-to-r from-green-600 to-orange-600 p-2 rounded-lg">
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <span className="text-2xl font-bold">Educa</span>
@@ -19,10 +19,10 @@ export default function Footer() {
               Empowering learners worldwide with quality education and innovative learning experiences.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a href="#" className="text-gray-400 hover:text-green-500 transition-colors duration-200">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a href="#" className="text-gray-400 hover:text-orange-500 transition-colors duration-200">
                 <Twitter className="h-5 w-5" />
               </a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">

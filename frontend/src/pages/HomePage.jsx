@@ -10,7 +10,7 @@ export default function HomePage() {
   return (
     <div className="space-y-16">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 via-blue-700 to-emerald-600 text-white">
+      <section className="bg-gradient-to-r from-violet-600 via-violet-700 to-fuchsia-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center space-y-8">
             <h1 className="text-5xl md:text-7xl font-bold leading-tight">
@@ -19,7 +19,7 @@ export default function HomePage() {
                 Simple
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-violet-100 max-w-3xl mx-auto leading-relaxed">
               Discover thousands of courses, connect with expert instructors, and advance your skills with our cutting-edge educational platform.
             </p>
             
@@ -40,13 +40,13 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
               <Link
                 to="/courses"
-                className="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                className="bg-white text-violet-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-violet-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
               >
                 Start Learning Today
               </Link>
               <Link
                 to="/courses"
-                className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-200 transform hover:scale-105"
+                className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-violet-600 transition-all duration-200 transform hover:scale-105"
               >
                 Browse Courses
               </Link>
@@ -66,8 +66,8 @@ export default function HomePage() {
               { icon: TrendingUp, label: 'Success Rate', value: '94%' }
             ].map((stat, index) => (
               <div key={index} className="text-center group">
-                <div className="bg-gradient-to-r from-blue-100 to-emerald-100 p-4 rounded-2xl w-20 h-20 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                  <stat.icon className="h-8 w-8 text-blue-600" />
+                <div className="bg-gradient-to-r from-green-100 to-orange-100 p-4 rounded-2xl w-20 h-20 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                  <stat.icon className="h-8 w-8 text-green-600" />
                 </div>
                 <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
                 <div className="text-gray-600">{stat.label}</div>
@@ -101,7 +101,7 @@ export default function HomePage() {
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute top-4 left-4">
-                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                       {course.category}
                     </span>
                   </div>
@@ -114,7 +114,7 @@ export default function HomePage() {
                 </div>
                 
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors duration-200">
                     {course.title}
                   </h3>
                   <p className="text-gray-600 mb-4 line-clamp-2">
@@ -141,7 +141,7 @@ export default function HomePage() {
                       />
                       <span className="text-sm text-gray-700">{course.instructor.name}</span>
                     </div>
-                    <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-2xl font-bold text-green-600">
                       ${course.price}
                     </div>
                   </div>
@@ -153,7 +153,7 @@ export default function HomePage() {
           <div className="text-center mt-12">
             <Link
               to="/courses"
-              className="inline-block bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+              className="inline-block bg-gradient-to-r from-green-600 to-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-green-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
             >
               View All Courses
             </Link>
@@ -181,7 +181,7 @@ export default function HomePage() {
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200">
                   {category.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-violet-600 transition-colors duration-200">
                   {category.name}
                 </h3>
                 <p className="text-gray-600">{category.count} courses</p>
@@ -192,7 +192,7 @@ export default function HomePage() {
       </section>
 
       {/* Success Stories */}
-      <section className="py-16 bg-gradient-to-r from-blue-50 to-emerald-50">
+      <section className="py-16 bg-gradient-to-r from-violet-50 to-fuchsia-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Success Stories</h2>
@@ -212,7 +212,7 @@ export default function HomePage() {
                   />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">{story.name}</h3>
-                    <p className="text-blue-600 font-medium">{story.position}</p>
+                    <p className="text-violet-600 font-medium">{story.position}</p>
                   </div>
                 </div>
                 <blockquote className="text-gray-700 italic mb-4">
@@ -228,22 +228,22 @@ export default function HomePage() {
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-emerald-600 text-white">
+      <section className="py-16 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold mb-6">Ready to Start Your Learning Journey?</h2>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-violet-100 mb-8">
             Join thousands of learners who are already advancing their careers with Educa
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
             <Link
               to="/courses"
-              className="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
+              className="bg-white text-violet-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-violet-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
             >
               Explore Courses
             </Link>
             <Link
               to="/community"
-              className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-200 transform hover:scale-105"
+              className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-violet-600 transition-all duration-200 transform hover:scale-105"
             >
               Join Community
             </Link>
