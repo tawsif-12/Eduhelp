@@ -15,7 +15,7 @@ export default function Community() {
     { id: 'news', label: 'News & Tips', icon: TrendingUp }
   ];
 
-  //const categories = ['All', 'Technology', 'Mathematics', 'Science', 'Languages', 'Arts', 'Business'];
+  const categories = ['All', 'Technology', 'Mathematics', 'Science', 'Languages', 'Arts', 'Business'];
 
   const filteredPosts = communityPosts.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
