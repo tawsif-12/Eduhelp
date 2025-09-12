@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, MessageCircle, Heart, Share, Plus, TrendingUp, Users, BookOpen } from 'lucide-react';
-import { communityPosts } from '../data/mockData';
+
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Community() {
@@ -41,8 +41,8 @@ export default function Community() {
             { icon: BookOpen, label: 'Questions Answered', value: '15,670', color: 'purple' }
           ].map((stat, index) => (
             <div key={index} className="bg-white rounded-2xl shadow-lg p-6 text-center hover:shadow-xl transition-shadow duration-200">
-              <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-${stat.color}-100 mb-4`}>
-                <stat.icon className={`h-6 w-6 text-${stat.color}-600`} />
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 mb-4">
+                <stat.icon className="h-6 w-6 text-blue-600" />
               </div>
               <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
               <div className="text-gray-600">{stat.label}</div>
@@ -63,7 +63,7 @@ export default function Community() {
                     onClick={() => setSelectedCategory(category)}
                     className={`w-full text-left px-3 py-2 rounded-xl transition-colors duration-200 ${
                       selectedCategory === category
-                        ? 'bg-violet-100 text-violet-600 font-medium'
+                        ? 'bg-blue-100 text-blue-600 font-medium'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
@@ -78,11 +78,11 @@ export default function Community() {
               <div className="bg-white rounded-2xl shadow-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
                 <div className="space-y-3">
-                  <button className="w-full bg-gradient-to-r from-green-600 to-orange-600 text-white py-3 px-4 rounded-xl font-medium hover:from-green-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
+                  <button className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-3 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
                     <Plus className="h-4 w-4" />
                     <span>Start Discussion</span>
                   </button>
-                  <button className="w-full border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl font-medium hover:border-green-300 hover:text-green-600 transition-colors duration-200 flex items-center justify-center space-x-2">
+                  <button className="w-full border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl font-medium hover:border-blue-300 hover:text-blue-600 transition-colors duration-200 flex items-center justify-center space-x-2">
                     <MessageCircle className="h-4 w-4" />
                     <span>Ask Question</span>
                   </button>
@@ -103,7 +103,7 @@ export default function Community() {
                       onClick={() => setActiveTab(tab.id)}
                       className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                         activeTab === tab.id
-                          ? 'border-violet-500 text-violet-600'
+                          ? 'border-blue-500 text-blue-600'
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                     >
@@ -123,7 +123,7 @@ export default function Community() {
                     placeholder="Search discussions, questions, or topics..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -134,40 +134,33 @@ export default function Community() {
                   <div className="space-y-6">
                     {filteredPosts.map(post => (
                       <div key={post.id} className="border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-shadow duration-200">
-                        <div className="flex items-start space-x-4">
-                          <img
-                            src={post.avatar}
-                            alt={post.author}
-                            className="h-12 w-12 rounded-full object-cover"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <h3 className="text-lg font-bold text-gray-900 hover:text-violet-600 cursor-pointer transition-colors duration-200">
-                                {post.title}
-                              </h3>
-                              <span className="bg-violet-100 text-violet-800 px-2 py-1 rounded-full text-xs font-medium">
-                                {post.category}
-                              </span>
+                        <div className="space-y-4">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h3 className="text-lg font-bold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors duration-200">
+                              {post.title}
+                            </h3>
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                              {post.category}
+                            </span>
+                          </div>
+                          <p className="text-gray-700 mb-4">{post.content}</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4 text-sm text-gray-500">
+                              <span>by {post.author}</span>
+                              <span>{post.timeAgo}</span>
                             </div>
-                            <p className="text-gray-700 mb-4">{post.content}</p>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-4 text-sm text-gray-500">
-                                <span>by {post.author}</span>
-                                <span>{post.timeAgo}</span>
-                              </div>
-                              <div className="flex items-center space-x-4">
-                                <button className="flex items-center space-x-1 text-gray-500 hover:text-red-500 transition-colors duration-200">
-                                  <Heart className="h-4 w-4" />
-                                  <span>{post.likes}</span>
-                                </button>
-                                <button className="flex items-center space-x-1 text-gray-500 hover:text-violet-500 transition-colors duration-200">
-                                  <MessageCircle className="h-4 w-4" />
-                                  <span>{post.replies}</span>
-                                </button>
-                                <button className="text-gray-500 hover:text-green-500 transition-colors duration-200">
-                                  <Share className="h-4 w-4" />
-                                </button>
-                              </div>
+                            <div className="flex items-center space-x-4">
+                              <button className="flex items-center space-x-1 text-gray-500 hover:text-red-500 transition-colors duration-200">
+                                <Heart className="h-4 w-4" />
+                                <span>{post.likes}</span>
+                              </button>
+                              <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-500 transition-colors duration-200">
+                                <MessageCircle className="h-4 w-4" />
+                                <span>{post.replies}</span>
+                              </button>
+                              <button className="text-gray-500 hover:text-green-500 transition-colors duration-200">
+                                <Share className="h-4 w-4" />
+                              </button>
                             </div>
                           </div>
                         </div>

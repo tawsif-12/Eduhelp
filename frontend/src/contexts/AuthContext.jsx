@@ -7,7 +7,6 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading user data
     const savedUser = localStorage.getItem('educa-user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -17,14 +16,12 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     const mockUser = {
       id: '1',
       name: 'Sarah Johnson',
       email,
-      avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
       role: 'student',
       joinedDate: '2023-01-15',
       coursesEnrolled: 8,
@@ -44,14 +41,12 @@ export function AuthProvider({ children }) {
 
   const register = async (name, email, password, role) => {
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     const mockUser = {
       id: '1',
       name,
       email,
-      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
       role: role,
       joinedDate: new Date().toISOString().split('T')[0],
       coursesEnrolled: 0,

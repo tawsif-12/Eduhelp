@@ -6,12 +6,19 @@ import {
   BarChart3, PieChart, Calendar, Settings
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { mockCourses } from '../data/mockData';
+
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
+  const [courses, setCourses] = useState([]);
+
+  React.useEffect(() => {
+    fetch('http://localhost:5003/api/courses')
+      .then(res => res.json())
+      .then(data => setCourses(data));
+  }, []);
 
   if (!user || user.role !== 'admin') {
     return (
@@ -170,7 +177,7 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {mockCourses.map(course => (
+                      {courses.map(course => (
                         <tr key={course.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200">
                           <td className="py-4 px-4">
                             <div className="flex items-center space-x-3">

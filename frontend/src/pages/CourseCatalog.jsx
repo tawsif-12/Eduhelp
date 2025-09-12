@@ -1,22 +1,36 @@
+
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Star, Clock, Users, Award } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { mockCourses, categories } from '../data/mockData';
 
-export default function CourseCatalog() {
+function CourseCatalog() {
   const [searchParams] = useSearchParams();
-  const [filteredCourses, setFilteredCourses] = useState(mockCourses);
+  const [courses, setCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || 'All',
     difficulty: 'All',
-    duration: 'All',
     certification: 'All'
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
+  // Fetch courses and categories from backend
   useEffect(() => {
-    let filtered = [...mockCourses];
+    fetch('http://localhost:5003/api/courses')
+      .then(res => res.json())
+      .then(data => {
+        setCourses(data);
+        setFilteredCourses(data);
+      });
+    fetch('http://localhost:5003/api/categories')
+      .then(res => res.json())
+      .then(data => setCategories(data));
+  }, []);
+
+  useEffect(() => {
+    let filtered = [...courses];
 
     if (filters.category !== 'All') {
       filtered = filtered.filter(course => course.category === filters.category);
@@ -38,12 +52,12 @@ export default function CourseCatalog() {
       filtered = filtered.filter(course =>
         course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        (course.tags && course.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
       );
     }
 
     setFilteredCourses(filtered);
-  }, [filters, searchTerm]);
+  }, [filters, searchTerm, courses]);
 
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({
@@ -162,7 +176,7 @@ export default function CourseCatalog() {
         {/* Results */}
         <div className="mb-6">
           <p className="text-gray-600">
-            Showing {filteredCourses.length} of {mockCourses.length} courses
+            Showing {filteredCourses.length} of {courses.length} courses
           </p>
         </div>
 
@@ -172,42 +186,32 @@ export default function CourseCatalog() {
             <Link
               key={course.id}
               to={`/course/${course.id}`}
-              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden"
+              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-200"
             >
-              <div className="relative">
-                <img
-                  src={course.thumbnail}
-                  alt={course.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-4 left-4">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
                   <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                     {course.category}
                   </span>
-                </div>
-                <div className="absolute top-4 right-4">
-                  <div className="bg-white bg-opacity-90 px-2 py-1 rounded-lg flex items-center space-x-1">
+                  <div className="flex items-center space-x-1">
                     <Star className="h-4 w-4 text-yellow-400 fill-current" />
                     <span className="text-sm font-medium">{course.rating}</span>
                   </div>
                 </div>
                 {course.certification && (
-                  <div className="absolute bottom-4 right-4">
-                    <div className="bg-emerald-600 text-white p-2 rounded-lg">
+                  <div className="mb-4">
+                    <div className="inline-flex items-center space-x-1 bg-emerald-100 text-emerald-800 px-2 py-1 rounded-lg text-sm">
                       <Award className="h-4 w-4" />
+                      <span>Certificate</span>
                     </div>
                   </div>
                 )}
-              </div>
-              
-              <div className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
                   {course.title}
                 </h3>
-                <p className="text-gray-600 mb-4 line-clamp-2">
+                <p className="text-gray-600 mb-4">
                   {course.description}
                 </p>
-                
                 <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-1">
@@ -227,14 +231,8 @@ export default function CourseCatalog() {
                     {course.difficulty}
                   </span>
                 </div>
-                
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <img
-                      src={course.instructor.avatar}
-                      alt={course.instructor.name}
-                      className="h-8 w-8 rounded-full object-cover"
-                    />
+                  <div>
                     <span className="text-sm text-gray-700">{course.instructor.name}</span>
                   </div>
                   <div className="text-2xl font-bold text-blue-600">
@@ -245,7 +243,6 @@ export default function CourseCatalog() {
             </Link>
           ))}
         </div>
-
         {filteredCourses.length === 0 && (
           <div className="text-center py-16">
             <div className="text-gray-400 mb-4">
@@ -259,3 +256,5 @@ export default function CourseCatalog() {
     </div>
   );
 }
+
+export default CourseCatalog;

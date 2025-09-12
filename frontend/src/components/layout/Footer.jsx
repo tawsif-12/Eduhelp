@@ -10,19 +10,19 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="bg-gradient-to-r from-green-600 to-orange-600 p-2 rounded-lg">
+              <div className="bg-gradient-to-r from-blue-600 to-emerald-600 p-2 rounded-lg">
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <span className="text-2xl font-bold">Educa</span>
             </Link>
             <p className="text-gray-400">
-              Empowering learners worldwide with quality education and innovative learning experiences.
+              Empowering learners across Bangladesh with quality education and innovative learning experiences.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-green-500 transition-colors duration-200">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-orange-500 transition-colors duration-200">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
                 <Twitter className="h-5 w-5" />
               </a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
@@ -62,15 +62,15 @@ export default function Footer() {
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-gray-400">
                 <Mail className="h-4 w-4" />
-                <span>support@educa.com</span>
+                <span>support@educa.com.bd</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-400">
                 <Phone className="h-4 w-4" />
-                <span>+1 (555) 123-4567</span>
+                <span>+880 1712-345678</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-400">
                 <MapPin className="h-4 w-4" />
-                <span>San Francisco, CA</span>
+                <span>Dhaka, Bangladesh</span>
               </div>
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400">
-            &copy; 2025 Educa. All rights reserved. Built with ❤️ for learners everywhere.
+            &copy; 2025 Educa Bangladesh. All rights reserved. Built with love for learners across Bangladesh.
           </p>
         </div>
       </div>

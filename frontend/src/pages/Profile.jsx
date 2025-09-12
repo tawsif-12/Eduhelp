@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Edit3, Award, BookOpen, Calendar, Mail, User, Save, X } from 'lucide-react';
+import { Edit3, Award, BookOpen, Calendar, Save, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Profile() {
@@ -25,7 +25,6 @@ export default function Profile() {
   }
 
   const handleSave = () => {
-    // In a real app, this would save to the backend
     setIsEditing(false);
   };
 
@@ -45,20 +44,13 @@ export default function Profile() {
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
           <div className="bg-gradient-to-r from-blue-600 to-emerald-600 px-6 py-8">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-6">
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-lg"
-                />
-                <div className="text-white">
-                  <h1 className="text-3xl font-bold">{user.name}</h1>
-                  <p className="text-blue-100 capitalize">{user.role}</p>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-4 w-4" />
-                      <span className="text-sm">Joined {user.joinedDate}</span>
-                    </div>
+              <div className="text-white">
+                <h1 className="text-3xl font-bold">{user.name}</h1>
+                <p className="text-blue-100 capitalize">{user.role}</p>
+                <div className="flex items-center space-x-4 mt-2">
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm">Joined {user.joinedDate}</span>
                   </div>
                 </div>
               </div>

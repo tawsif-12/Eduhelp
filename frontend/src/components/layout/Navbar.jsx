@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { GraduationCap, Menu, X, User, Search, Bell } from 'lucide-react';
+import { GraduationCap, Menu, X, Search, Bell } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import AuthModal from '../auth/AuthModal';
 
@@ -64,7 +64,9 @@ export default function Navbar() {
                   </button>
                   <div className="flex items-center space-x-3">
                     <Link to="/profile" className="flex items-center space-x-2 hover:bg-gray-100 rounded-lg p-2 transition-colors duration-200">
-                      <img src={user.avatar} alt={user.name} className="h-8 w-8 rounded-full object-cover" />
+                      <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        {user.name.charAt(0)}
+                      </div>
                       <span className="text-sm font-medium text-gray-700">{user.name}</span>
                     </Link>
                     <button

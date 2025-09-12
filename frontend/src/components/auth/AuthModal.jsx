@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, Github, Mail as GoogleIcon } from 'lucide-react';
-
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function AuthModal({ onClose }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,49 +11,20 @@ export default function AuthModal({ onClose }) {
     password: '',
     role: 'student'
   });
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const { login, register, isLoading } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setErrorMsg('');
     try {
-      let response;
       if (isLogin) {
-        response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password
-          })
-        });
+        await login(formData.email, formData.password);
       } else {
-        response = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            role: formData.role
-          })
-        });
+        await register(formData.name, formData.email, formData.password, formData.role);
       }
-      const data = await response.json();
-      if (response.ok) {
-        // You can store token or user info here if needed
-        onClose();
-      } else {
-        setErrorMsg(data.message || 'Authentication failed');
-      }
+      onClose();
     } catch (error) {
-      setErrorMsg('Network error');
       console.error('Authentication error:', error);
     }
-    setIsLoading(false);
   };
 
   const handleInputChange = (e) => {
@@ -101,9 +72,6 @@ export default function AuthModal({ onClose }) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {errorMsg && (
-            <div className="text-red-500 text-sm text-center mb-2">{errorMsg}</div>
-          )}
           {!isLogin && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

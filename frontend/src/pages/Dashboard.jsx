@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { BookOpen, Award, TrendingUp, Clock, Star, Play, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { mockCourses } from '../data/mockData';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+  const [courses, setCourses] = useState([]);
+  React.useEffect(() => {
+    fetch('http://localhost:5003/api/courses')
+      .then(res => res.json())
+      .then(data => setCourses(data));
+  }, []);
 
   if (!user) {
     return (
@@ -20,7 +25,7 @@ export default function Dashboard() {
     );
   }
 
-  const enrolledCourses = mockCourses.slice(0, 3);
+  const enrolledCourses = courses.slice(0, 3);
   const recentActivity = [
     { action: 'Completed lesson', course: 'Web Development', time: '2 hours ago' },
     { action: 'Started quiz', course: 'Data Science', time: '1 day ago' },
