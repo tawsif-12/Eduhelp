@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
     
     const mockUser = {
       id: '1',
-      name: 'Sarah Johnson',
+  name: 'Tawsif Mannan',
       email,
       role: 'student',
       joinedDate: '2023-01-15',
