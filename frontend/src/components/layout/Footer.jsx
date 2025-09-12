@@ -78,7 +78,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400">
-            &copy; 2025 Educa Bangladesh. All rights reserved. Built with love for learners across Bangladesh.
+            &copy; 2025 Educa Bangladesh. All rights reserved. Built with love for learners across Bangladesh,Made by irfan zahir.
           </p>
         </div>
       </div>
