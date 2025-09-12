@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const Course = require('./models/Course');
 const Category = require('./models/Category');
-const SuccessStory = require('./models/SuccessStory');
+// const SuccessStory = require('./models/SuccessStory');
 
 const categories = [
   { name: 'Programming' },
