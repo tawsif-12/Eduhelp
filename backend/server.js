@@ -17,7 +17,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/success-stories', successStoryRoutes);
 
-const PORT = process.env.PORT || 5003;
+const PORT = process.env.PORT || 5000;
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
