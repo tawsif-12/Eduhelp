@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const SuccessStory = require('../models/SuccessStory');
+const SuccessStory = require('../modals/SuccessStory');
 
 // GET /api/success-stories
 router.get('/', async (req, res) => {

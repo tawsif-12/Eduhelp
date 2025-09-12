@@ -15,7 +15,7 @@ const HomePage = () => {
     fetch('http://localhost:5003/api/categories')
       .then(res => res.json())
       .then(data => setCategories(data));
-    fetch('http://localhost:5003/api/success-stories/featured')
+  fetch('http://localhost:5003/api/success-stories')
       .then(res => res.json())
       .then(data => setSuccessStories(data))
       .catch(err => console.error('Error fetching success stories:', err));
