@@ -62,7 +62,7 @@ export default function Footer() {
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-gray-400">
                 <Mail className="h-4 w-4" />
-                <span>support@educa.com.bd</span>
+                <span>support@eduhelp.com.bd</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-400">
                 <Phone className="h-4 w-4" />
@@ -70,7 +70,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-2 text-gray-400">
                 <MapPin className="h-4 w-4" />
-                <span>Dhaka, Banglades</span>
+                <span>Dhaka, Bangladesh</span>
               </div>
             </div>
           </div>
