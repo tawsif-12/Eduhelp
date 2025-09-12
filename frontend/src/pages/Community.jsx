@@ -1,3 +1,26 @@
+// Temporary mock data for community posts
+const communityPosts = [
+  {
+    id: 1,
+    title: 'Tips for Better Code Organization',
+    author: 'Alex Chen',
+    category: 'Technology',
+    replies: 23,
+    likes: 145,
+    timeAgo: '2 hours ago',
+    content: "Here are some best practices I've learned for organizing your code effectively..."
+  },
+  {
+    id: 2,
+    title: 'Understanding Complex Mathematical Concepts',
+    author: 'Maria Rodriguez',
+    category: 'Mathematics',
+    replies: 18,
+    likes: 89,
+    timeAgo: '5 hours ago',
+    content: 'Breaking down complex mathematical problems into smaller, manageable steps...'
+  }
+];
 import React, { useState } from 'react';
 import { Search, MessageCircle, Heart, Share, Plus, TrendingUp, Users, BookOpen } from 'lucide-react';
 
