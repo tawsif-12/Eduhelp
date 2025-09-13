@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const SuccessStory = require('../modals/SuccessStory');
 
-// GET /api/success-stories
+
 router.get('/', async (req, res) => {
   try {
     const successStories = await SuccessStory.find();
@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/success-stories/featured
+
 router.get('/featured', async (req, res) => {
   try {
     const featuredStories = await SuccessStory.find({ featured: true });
@@ -22,7 +22,7 @@ router.get('/featured', async (req, res) => {
   }
 });
 
-// POST /api/success-stories (for adding new success stories)
+
 router.post('/', async (req, res) => {
   try {
     const successStory = new SuccessStory(req.body);

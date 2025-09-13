@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Course = require('../models/Course');
 
-// GET /api/courses
 router.get('/', async (req, res) => {
   try {
     const courses = await Course.find();
@@ -12,6 +11,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// (Optional) Add more endpoints for filtering, searching, etc.
+
 
 module.exports = router;
