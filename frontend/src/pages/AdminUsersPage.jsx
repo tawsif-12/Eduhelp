@@ -1,52 +1,90 @@
 import React, { useState, useEffect } from 'react';
 import LaravelAdminLayout from '../components/admin/LaravelAdminLayout';
+import { getUsers, updateUser, deleteUser } from '../services/adminService';
 import { 
   Search, Filter, Plus, Eye, Edit, Trash2, 
   Download, ChevronLeft, ChevronRight, 
   MoreVertical, Users, Mail, Calendar,
-  CheckCircle, XCircle, Clock, UserPlus
+  CheckCircle, XCircle, Clock, UserPlus, AlertTriangle, RefreshCw
 } from 'lucide-react';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [editingUser, setEditingUser] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const usersPerPage = 10;
 
   useEffect(() => {
-    // Simulate loading users data
-    setTimeout(() => {
+    fetchUsers();
+  }, [currentPage, searchTerm, filterRole, filterStatus]);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const params = {
+        page: currentPage,
+        limit: usersPerPage,
+        search: searchTerm,
+        role: filterRole,
+        status: filterStatus
+      };
+      
+      const data = await getUsers(params);
+      setUsers(data.users || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalUsers(data.total || 0);
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+      setError(error.message || 'Failed to load users');
+      // Use fallback data if backend fails
       setUsers([
-        { id: 1, name: 'John Smith', email: 'john@example.com', role: 'student', status: 'active', joinDate: '2025-01-15', courses: 3, avatar: null },
-        { id: 2, name: 'Sarah Wilson', email: 'sarah@example.com', role: 'teacher', status: 'active', joinDate: '2025-01-14', courses: 5, avatar: null },
-        { id: 3, name: 'Mike Johnson', email: 'mike@example.com', role: 'student', status: 'pending', joinDate: '2025-01-13', courses: 1, avatar: null },
-        { id: 4, name: 'Emma Davis', email: 'emma@example.com', role: 'student', status: 'active', joinDate: '2025-01-12', courses: 2, avatar: null },
-        { id: 5, name: 'Dr. Brown', email: 'brown@example.com', role: 'teacher', status: 'active', joinDate: '2025-01-11', courses: 8, avatar: null },
-        { id: 6, name: 'Lisa Chen', email: 'lisa@example.com', role: 'student', status: 'inactive', joinDate: '2025-01-10', courses: 0, avatar: null },
-        { id: 7, name: 'Robert Taylor', email: 'robert@example.com', role: 'admin', status: 'active', joinDate: '2025-01-09', courses: 0, avatar: null },
-        { id: 8, name: 'Jennifer White', email: 'jennifer@example.com', role: 'teacher', status: 'pending', joinDate: '2025-01-08', courses: 3, avatar: null },
-        { id: 9, name: 'David Martinez', email: 'david@example.com', role: 'student', status: 'active', joinDate: '2025-01-07', courses: 4, avatar: null },
-        { id: 10, name: 'Amanda Lee', email: 'amanda@example.com', role: 'student', status: 'active', joinDate: '2025-01-06', courses: 6, avatar: null },
-        { id: 11, name: 'Kevin Anderson', email: 'kevin@example.com', role: 'teacher', status: 'active', joinDate: '2025-01-05', courses: 7, avatar: null },
-        { id: 12, name: 'Rachel Moore', email: 'rachel@example.com', role: 'student', status: 'pending', joinDate: '2025-01-04', courses: 1, avatar: null }
+        { _id: '1', name: 'John Smith', email: 'john@example.com', role: 'student', status: 'active', createdAt: '2025-01-15' },
+        { _id: '2', name: 'Sarah Wilson', email: 'sarah@example.com', role: 'teacher', status: 'active', createdAt: '2025-01-14' },
+        { _id: '3', name: 'Mike Johnson', email: 'mike@example.com', role: 'student', status: 'pending', createdAt: '2025-01-13' }
       ]);
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
+    }
+  };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = filterRole === 'all' || user.role === filterRole;
-    const matchesStatus = filterStatus === 'all' || user.status === filterStatus;
-    
-    return matchesSearch && matchesRole && matchesStatus;
-  });
+  const handleUpdateUser = async (userId, userData) => {
+    try {
+      const updatedUser = await updateUser(userId, userData);
+      setUsers(users.map(user => user._id === userId ? updatedUser : user));
+      setEditingUser(null);
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      setError(error.message || 'Failed to update user');
+    }
+  };
 
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const handleDeleteUser = async (userId) => {
+    try {
+      await deleteUser(userId);
+      setUsers(users.filter(user => user._id !== userId));
+      setDeleteConfirm(null);
+      setTotalUsers(totalUsers - 1);
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+      setError(error.message || 'Failed to delete user');
+    }
+  };
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterRole, filterStatus]);
+
+  const filteredUsers = users;
   const startIndex = (currentPage - 1) * usersPerPage;
   const paginatedUsers = filteredUsers.slice(startIndex, startIndex + usersPerPage);
 
@@ -81,7 +119,10 @@ export default function AdminUsersPage() {
     return (
       <LaravelAdminLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading users...</p>
+          </div>
         </div>
       </LaravelAdminLayout>
     );
@@ -89,6 +130,21 @@ export default function AdminUsersPage() {
 
   return (
     <LaravelAdminLayout>
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
+            <p className="text-red-700">{error}</p>
+            <button 
+              onClick={fetchUsers}
+              className="ml-auto text-red-600 hover:text-red-800"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
       {/* Page Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -118,7 +174,7 @@ export default function AdminUsersPage() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900">{users.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{totalUsers}</p>
             </div>
           </div>
         </div>

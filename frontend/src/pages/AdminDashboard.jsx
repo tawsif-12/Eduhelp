@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import LaravelAdminLayout from '../components/admin/LaravelAdminLayout';
+import { getDashboardStats } from '../services/adminService';
 import { 
   Users, BookOpen, TrendingUp, DollarSign, 
   Plus, Edit, Trash2, Search, Filter,
@@ -14,51 +15,72 @@ import { Link } from 'react-router-dom';
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [dashboardData, setDashboardData] = useState({
-    stats: [],
-    recentActivity: [],
-    users: [],
-    courses: []
+    stats: {
+      totalUsers: 0,
+      totalCourses: 0,
+      activeUsers: 0,
+      completionRate: 0,
+      revenue: 0
+    },
+    recentUsers: [],
+    recentCourses: []
   });
 
+  // Debug logging
+  console.log('AdminDashboard - Current user:', user);
+  console.log('AdminDashboard - User role:', user?.role);
+  console.log('AdminDashboard - User name:', user?.name);
+  console.log('AdminDashboard - User name type:', typeof user?.name);
+
   useEffect(() => {
-    // Simulate loading dashboard data
-    setTimeout(() => {
+    if (user && user.role === 'admin') {
+      fetchDashboardData();
+    }
+  }, [user]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await getDashboardStats();
+      setDashboardData(data);
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+      setError(error.message || 'Failed to load dashboard data');
+      // Use fallback data if backend fails
       setDashboardData({
-        stats: [
-          { icon: Users, label: 'Total Users', value: '12,450', change: '+12%', changeType: 'increase', color: 'blue' },
-          { icon: BookOpen, label: 'Total Courses', value: '156', change: '+5%', changeType: 'increase', color: 'green' },
-          { icon: DollarSign, label: 'Revenue', value: '$89,240', change: '+18%', changeType: 'increase', color: 'yellow' },
-          { icon: TrendingUp, label: 'Completion Rate', value: '87%', change: '+3%', changeType: 'increase', color: 'purple' }
-        ],
-        recentActivity: [
-          { id: 1, action: 'New user registration', user: 'John Doe', time: '2 minutes ago', type: 'user' },
-          { id: 2, action: 'Course completed', user: 'Sarah Wilson', time: '15 minutes ago', type: 'course' },
-          { id: 3, action: 'Payment received', user: 'Mike Johnson', time: '1 hour ago', type: 'payment' },
-          { id: 4, action: 'New course published', user: 'Dr. Smith', time: '2 hours ago', type: 'course' },
-          { id: 5, action: 'User report submitted', user: 'Anonymous', time: '3 hours ago', type: 'report' }
-        ],
-        users: [
-          { id: 1, name: 'John Smith', email: 'john@example.com', role: 'student', status: 'active', joinDate: '2025-01-15' },
-          { id: 2, name: 'Sarah Wilson', email: 'sarah@example.com', role: 'teacher', status: 'active', joinDate: '2025-01-14' },
-          { id: 3, name: 'Mike Johnson', email: 'mike@example.com', role: 'student', status: 'pending', joinDate: '2025-01-13' }
-        ],
-        courses: [
-          { id: 1, title: 'React Development', instructor: 'Dr. Smith', students: 245, status: 'published', revenue: '$12,450' },
-          { id: 2, title: 'Node.js Backend', instructor: 'Prof. Johnson', students: 189, status: 'published', revenue: '$9,870' },
-          { id: 3, title: 'Laravel Mastery', instructor: 'Sarah Wilson', students: 156, status: 'draft', revenue: '$0' }
-        ]
+        stats: {
+          totalUsers: 12450,
+          totalCourses: 156,
+          activeUsers: 11203,
+          completionRate: 87,
+          revenue: 89240
+        },
+        recentUsers: [],
+        recentCourses: []
       });
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
+    }
+  };
 
   if (!user || user.role !== 'admin') {
+    console.log('ACCESS DENIED - Showing access denied page');
+    console.log('User object:', user);
+    console.log('User role:', user?.role);
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
           <p className="text-gray-600 mb-6">You need admin privileges to access this page</p>
+          <div className="text-red-600 mb-4 text-left">
+            <p>Debug Info:</p>
+            <pre className="bg-gray-100 p-2 rounded text-sm">
+              User: {JSON.stringify(user, null, 2)}
+            </pre>
+          </div>
           <Link to="/" className="text-blue-600 hover:underline">Go to homepage</Link>
         </div>
       </div>
@@ -85,11 +107,68 @@ export default function AdminDashboard() {
     return `px-2 py-1 rounded-full text-xs font-medium ${styles[status] || styles.draft}`;
   };
 
+  // Format stats data
+  const statsDisplay = [
+    { 
+      icon: Users, 
+      label: 'Total Users', 
+      value: dashboardData.stats.totalUsers?.toLocaleString() || '0', 
+      change: '+12%', 
+      changeType: 'increase', 
+      color: 'blue' 
+    },
+    { 
+      icon: BookOpen, 
+      label: 'Total Courses', 
+      value: dashboardData.stats.totalCourses?.toString() || '0', 
+      change: '+5%', 
+      changeType: 'increase', 
+      color: 'green' 
+    },
+    { 
+      icon: DollarSign, 
+      label: 'Revenue', 
+      value: `$${dashboardData.stats.revenue?.toLocaleString() || '0'}`, 
+      change: '+18%', 
+      changeType: 'increase', 
+      color: 'yellow' 
+    },
+    { 
+      icon: TrendingUp, 
+      label: 'Completion Rate', 
+      value: `${dashboardData.stats.completionRate || 0}%`, 
+      change: '+3%', 
+      changeType: 'increase', 
+      color: 'purple' 
+    }
+  ];
+
+  // Generate recent activity from real data
+  const recentActivity = [
+    ...(dashboardData.recentUsers?.slice(0, 3).map((user, index) => ({
+      id: `user-${user._id}`,
+      action: 'New user registration',
+      user: user?.name || 'Unknown User',
+      time: `${index + 1} ${index === 0 ? 'hour' : 'hours'} ago`,
+      type: 'user'
+    })) || []),
+    ...(dashboardData.recentCourses?.slice(0, 2).map((course, index) => ({
+      id: `course-${course._id}`,
+      action: course.status === 'published' ? 'Course published' : 'Course created',
+      user: course?.instructor?.name || course?.instructor || 'Unknown Instructor',
+      time: `${index + 2} hours ago`,
+      type: 'course'
+    })) || [])
+  ];
+
   if (loading) {
     return (
       <LaravelAdminLayout>
         <div className="flex items-center justify-center h-64">
-          <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading dashboard data...</p>
+          </div>
         </div>
       </LaravelAdminLayout>
     );
@@ -97,14 +176,37 @@ export default function AdminDashboard() {
 
   return (
     <LaravelAdminLayout>
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
+            <p className="text-red-700">{error}</p>
+            <button 
+              onClick={fetchDashboardData}
+              className="ml-auto text-red-600 hover:text-red-800"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">Welcome back, {user.name}!</p>
+            <p className="text-gray-600 mt-1">Welcome back, {user?.name || 'Admin'}!</p>
           </div>
           <div className="flex items-center space-x-3">
+            <button 
+              onClick={fetchDashboardData}
+              className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span>Refresh</span>
+            </button>
             <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
               <Download className="h-4 w-4" />
               <span>Export</span>
@@ -119,7 +221,7 @@ export default function AdminDashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {dashboardData.stats.map((stat, index) => (
+        {statsDisplay.map((stat, index) => (
           <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <div className={`p-3 rounded-lg bg-${stat.color}-100`}>
@@ -154,7 +256,7 @@ export default function AdminDashboard() {
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {dashboardData.recentActivity.map((activity) => (
+                {recentActivity.length > 0 ? recentActivity.map((activity) => (
                   <div key={activity.id} className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg">
                     <div className="flex-shrink-0">
                       {getActivityIcon(activity.type)}
@@ -171,7 +273,12 @@ export default function AdminDashboard() {
                       {activity.time}
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="text-center py-8">
+                    <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No recent activity</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -244,18 +351,19 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {dashboardData.users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                {dashboardData.users && dashboardData.users.length > 0 ? (
+                  dashboardData.users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{user?.name || 'Unknown'}</div>
+                          <div className="text-sm text-gray-500">{user?.email || 'No email'}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">{user?.role || 'Unknown'}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">{user.role}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={getStatusBadge(user.status)}>
-                        {user.status}
+                      <span className={getStatusBadge(user?.status || 'active')}>
+                        {user?.status || 'active'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -272,7 +380,14 @@ export default function AdminDashboard() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
+                      {loading ? 'Loading users...' : 'No users found'}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -299,7 +414,8 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {dashboardData.courses.map((course) => (
+                {dashboardData.courses && dashboardData.courses.length > 0 ? (
+                  dashboardData.courses.map((course) => (
                   <tr key={course.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
@@ -315,7 +431,14 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{course.revenue}</td>
                   </tr>
-                ))}
+                ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
+                      {loading ? 'Loading courses...' : 'No courses found'}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

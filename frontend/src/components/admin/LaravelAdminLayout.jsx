@@ -14,6 +14,12 @@ export default function LaravelAdminLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Debug logging for LaravelAdminLayout
+  console.log('LaravelAdminLayout - user:', user);
+  console.log('LaravelAdminLayout - user type:', typeof user);
+  console.log('LaravelAdminLayout - user.name:', user?.name);
+  console.log('LaravelAdminLayout - user.name type:', typeof user?.name);
+
   const handleLogout = async () => {
     await logout();
     navigate('/');
@@ -74,8 +80,8 @@ export default function LaravelAdminLayout({ children }) {
               <User className="h-6 w-6 text-white" />
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-white">{user?.name}</p>
-              <p className="text-xs text-gray-400">{user?.email}</p>
+              <p className="text-sm font-medium text-white">{user?.name || 'Admin'}</p>
+              <p className="text-xs text-gray-400">{user?.email || 'admin@example.com'}</p>
             </div>
           </div>
         </div>

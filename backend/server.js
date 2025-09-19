@@ -13,6 +13,7 @@ app.use(cors());
 const courseRoutes = require('./routes/courseRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const successStoryRoutes = require('./routes/successStoryRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const userRoutes = require('./routes/userRoutes');
 const lectureRoutes = require('./routes/lectureRoutes');
@@ -21,6 +22,7 @@ const communityRoutes = require('./routes/communityRoutes');
 app.use('/api/courses', courseRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/success-stories', successStoryRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use('/api/users', userRoutes);
 app.use('/api/lectures', lectureRoutes);

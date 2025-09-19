@@ -19,6 +19,11 @@ const UserSchema = new mongoose.Schema({
     enum: ['student', 'teacher', 'admin'],
     default: 'student'
   },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'pending'],
+    default: 'active'
+  },
   profile: {
     bio: String,
     institution: String,
