@@ -15,9 +15,11 @@ export default function AuthModal({ onClose }) {
     role: initialUserType
   });
   const { login, register, isLoading } = useAuth();
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
     try {
       // Force userType to 'admin' if admin login modal is open
       const isAdminLogin = userType === 'admin';
@@ -31,7 +33,7 @@ export default function AuthModal({ onClose }) {
       }
       onClose();
     } catch (error) {
-      console.error('Authentication error:', error);
+      setErrorMsg(error.message || 'Login failed. Please try again.');
     }
   };
 
@@ -53,6 +55,11 @@ export default function AuthModal({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-100">
+        {errorMsg && (
+          <div className="bg-red-100 text-red-700 px-4 py-2 rounded-t-2xl text-center font-medium">
+            {errorMsg}
+          </div>
+        )}
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-900">
             {isLogin ? 'Welcome Back to EduHelp' : 'Join EduHelp'}
