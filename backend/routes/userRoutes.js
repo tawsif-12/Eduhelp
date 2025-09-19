@@ -89,19 +89,47 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    // TEST MODE: Bypass DB for admin login
+    if (
+      email === 'irfan.cse.20230104064@aust.edu' &&
+      password === 'admin123'
+    ) {
+      const fakeAdmin = {
+        _id: 'admin-fake-id',
+        name: 'Admin',
+        email,
+        role: 'admin',
+        profile: { bio: 'Platform administrator' },
+        stats: {},
+        badges: [],
+        joinedDate: new Date().toISOString(),
+      };
+      const token = jwt.sign(
+        {
+          userId: fakeAdmin._id,
+          email: fakeAdmin.email,
+          userType: fakeAdmin.role,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+      return res.json({
+        message: 'Login successful',
+        token,
+        user: fakeAdmin,
+      });
+    }
+    // ...existing code for normal login...
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
-
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
-
     // Generate JWT token
     const token = jwt.sign(
       { 
@@ -112,11 +140,9 @@ router.post('/login', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
-
     // Return user without password
     const userResponse = user.toObject();
     delete userResponse.password;
-    
     res.json({
       message: 'Login successful',
       token,
