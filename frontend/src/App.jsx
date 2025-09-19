@@ -15,13 +15,50 @@ import TeacherDashboard from './pages/TeacherDashboard';
 import Community from './pages/Community';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminUsersPage from './pages/AdminUsersPage';
+import AdminCoursesPage from './pages/AdminCoursesPage';
 
 function App() {
   return (
     <AuthProvider>
       <Routes>
-        {/* Routes without Navbar/Footer */}
+        {/* Admin Routes without Navbar/Footer */}
         <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/users" element={
+          <ProtectedRoute>
+            <AdminUsersPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/courses" element={
+          <ProtectedRoute>
+            <AdminCoursesPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/lectures" element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/stories" element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/analytics" element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/revenue" element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/settings" element={
           <ProtectedRoute>
             <AdminDashboard />
           </ProtectedRoute>
