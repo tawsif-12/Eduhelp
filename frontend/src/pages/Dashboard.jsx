@@ -4,14 +4,27 @@ import { BookOpen, Award, TrendingUp, Clock, Star, Play, CheckCircle } from 'luc
 import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [courses, setCourses] = useState([]);
+  
   React.useEffect(() => {
     fetch('http://localhost:5003/api/courses')
       .then(res => res.json())
-      .then(data => setCourses(data));
+      .then(data => setCourses(data))
+      .catch(err => console.error('Error fetching courses:', err));
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (

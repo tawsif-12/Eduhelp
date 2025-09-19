@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const SuccessStory = require('../modals/SuccessStory');
+const SuccessStory = require('../models/SuccessStory');
 
 
 router.get('/', async (req, res) => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Github, Mail as GoogleIcon, GraduationCap, BookOpen, Users, Award, TrendingUp, Globe, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -21,6 +21,10 @@ export default function SignUp() {
   const [errors, setErrors] = useState({});
   const { register, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the page user was trying to access before being redirected to signup
+  const from = location.state?.from?.pathname || null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,18 +51,23 @@ export default function SignUp() {
     }
 
     try {
-      const fullName = `${formData.firstName} ${formData.lastName}`;
-      await register(fullName, formData.email, formData.password, userType);
+      const user = await register(formData, userType);
+      console.log('Registration successful:', user); // Debug log
       
-      // Redirect based on user type
-      if (userType === 'teacher') {
-        navigate('/teacher-dashboard');
+      // If user was redirected from a protected page, go back there
+      if (from) {
+        navigate(from, { replace: true });
       } else {
-        navigate('/dashboard');
+        // Default redirect based on user type
+        if (userType === 'teacher') {
+          navigate('/teacher-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setErrors({ general: 'Registration failed. Please try again.' });
+      setErrors({ general: error.message || 'Registration failed. Please try again.' });
     }
   };
 

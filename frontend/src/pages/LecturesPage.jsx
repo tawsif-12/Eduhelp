@@ -1,84 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Eye, Star, Clock, User, Youtube, Search, Filter } from 'lucide-react';
+import lectureService from '../services/lectureService';
 
 export default function LecturesPage() {
   const [lectures, setLectures] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Mock data - in real app, this would come from an API
+  // Fetch lectures from backend
   useEffect(() => {
-    const mockLectures = [
-      {
-        id: 1,
-        title: 'Introduction to React Hooks',
-        description: 'Learn the basics of React Hooks and how to use them effectively.',
-        youtubeUrl: 'https://www.youtube.com/watch?v=O6P86uwfdR0',
-        thumbnail: 'https://img.youtube.com/vi/O6P86uwfdR0/mqdefault.jpg',
-        duration: '45 min',
-        views: 1250,
-        likes: 89,
-        uploadDate: '2024-01-15',
-        category: 'programming',
-        tags: 'react, hooks, javascript',
-        instructor: 'Prof. Smith',
-        level: 'Beginner'
-      },
-      {
-        id: 2,
-        title: 'Advanced State Management',
-        description: 'Deep dive into advanced state management patterns in React.',
-        youtubeUrl: 'https://www.youtube.com/watch?v=35lXWvCuM8o',
-        thumbnail: 'https://img.youtube.com/vi/35lXWvCuM8o/mqdefault.jpg',
-        duration: '60 min',
-        views: 980,
-        likes: 67,
-        uploadDate: '2024-01-10',
-        category: 'programming',
-        tags: 'react, state, redux',
-        instructor: 'Dr. Johnson',
-        level: 'Advanced'
-      },
-      {
-        id: 3,
-        title: 'JavaScript Fundamentals',
-        description: 'Master the core concepts of JavaScript programming.',
-        youtubeUrl: 'https://www.youtube.com/watch?v=hdI2bqOjy3c',
-        thumbnail: 'https://img.youtube.com/vi/hdI2bqOjy3c/mqdefault.jpg',
-        duration: '90 min',
-        views: 2100,
-        likes: 156,
-        uploadDate: '2024-01-08',
-        category: 'programming',
-        tags: 'javascript, fundamentals, basics',
-        instructor: 'Prof. Davis',
-        level: 'Beginner'
-      },
-      {
-        id: 4,
-        title: 'Mathematics for Computer Science',
-        description: 'Essential mathematical concepts for computer science students.',
-        youtubeUrl: 'https://www.youtube.com/watch?v=2SpuBqvNjHI',
-        thumbnail: 'https://img.youtube.com/vi/2SpuBqvNjHI/mqdefault.jpg',
-        duration: '75 min',
-        views: 850,
-        likes: 43,
-        uploadDate: '2024-01-05',
-        category: 'mathematics',
-        tags: 'math, algorithms, discrete',
-        instructor: 'Dr. Wilson',
-        level: 'Intermediate'
-      }
-    ];
-    setLectures(mockLectures);
+    fetchLectures();
   }, []);
+
+  const fetchLectures = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+      const filters = {};
+      if (selectedCategory !== 'all') {
+        filters.category = selectedCategory;
+      }
+      if (searchTerm) {
+        filters.search = searchTerm;
+      }
+      
+      const fetchedLectures = await lectureService.getAllLectures(filters);
+      setLectures(fetchedLectures);
+    } catch (error) {
+      console.error('Error fetching lectures:', error);
+      setError('Failed to load lectures. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Re-fetch when search term or category changes
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      fetchLectures();
+    }, 500);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchTerm, selectedCategory]);
 
   const filteredLectures = lectures
     .filter(lecture => {
       const matchesSearch = lecture.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            lecture.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           lecture.tags.toLowerCase().includes(searchTerm.toLowerCase());
+                           (lecture.tags && lecture.tags.join && lecture.tags.join(' ').toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = selectedCategory === 'all' || lecture.category === selectedCategory;
       return matchesSearch && matchesCategory;
     })
@@ -179,23 +151,52 @@ export default function LecturesPage() {
           </p>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="text-red-600 text-sm">{error}</div>
+          </div>
+        )}
+
         {/* Lectures Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredLectures.map((lecture) => (
-            <div key={lecture.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-200">
-              {/* Thumbnail */}
-              <div className="relative">
-                <img
-                  src={lecture.thumbnail}
-                  alt={lecture.title}
-                  className="w-full h-48 object-cover"
-                  onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/480x270/f3f4f6/9ca3af?text=Video+Thumbnail';
-                  }}
-                />
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs flex items-center space-x-1">
-                  <Clock className="h-3 w-3" />
-                  <span>{lecture.duration}</span>
+          {isLoading ? (
+            // Loading skeleton
+            Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
+                <div className="h-48 bg-gray-200"></div>
+                <div className="p-4">
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-4"></div>
+                  <div className="flex justify-between">
+                    <div className="h-3 bg-gray-200 rounded w-16"></div>
+                    <div className="h-3 bg-gray-200 rounded w-12"></div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : filteredLectures.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <Play className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-600 mb-2">No lectures found</h3>
+              <p className="text-gray-500">Try adjusting your search criteria</p>
+            </div>
+          ) : (
+            filteredLectures.map((lecture) => (
+              <div key={lecture._id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-200">
+                {/* Thumbnail */}
+                <div className="relative">
+                  <img
+                    src={lecture.thumbnail}
+                    alt={lecture.title}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/480x270/f3f4f6/9ca3af?text=Video+Thumbnail';
+                    }}
+                  />
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs flex items-center space-x-1">
+                    <Clock className="h-3 w-3" />
+                    <span>{lecture.duration || 'N/A'}</span>
                 </div>
                 <div className="absolute top-2 left-2">
                   <Youtube className="h-6 w-6 text-red-600" />
@@ -243,7 +244,7 @@ export default function LecturesPage() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-1 text-gray-500">
                     <User className="h-4 w-4" />
-                    <span className="text-sm">{lecture.instructor}</span>
+                    <span className="text-sm">{lecture.instructor?.name || lecture.instructorName || 'Unknown Instructor'}</span>
                   </div>
                 </div>
 
@@ -251,23 +252,23 @@ export default function LecturesPage() {
                   <div className="flex items-center space-x-4">
                     <span className="flex items-center space-x-1">
                       <Eye className="h-4 w-4" />
-                      <span>{lecture.views.toLocaleString()}</span>
+                      <span>{(lecture.stats?.views || lecture.views || 0).toLocaleString()}</span>
                     </span>
                     <span className="flex items-center space-x-1">
                       <Star className="h-4 w-4" />
-                      <span>{lecture.likes}</span>
+                      <span>{(lecture.stats?.likes || lecture.likes || 0).toLocaleString()}</span>
                     </span>
                   </div>
                 </div>
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1 mb-4">
-                  {lecture.tags.split(',').slice(0, 3).map((tag, index) => (
+                  {(Array.isArray(lecture.tags) ? lecture.tags : (lecture.tags ? lecture.tags.split(',') : [])).slice(0, 3).map((tag, index) => (
                     <span
                       key={index}
                       className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
                     >
-                      {tag.trim()}
+                      {typeof tag === 'string' ? tag.trim() : tag}
                     </span>
                   ))}
                 </div>
@@ -282,17 +283,9 @@ export default function LecturesPage() {
                 </button>
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
-
-        {/* No Results */}
-        {filteredLectures.length === 0 && (
-          <div className="text-center py-12">
-            <Youtube className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-600 mb-2">No lectures found</h3>
-            <p className="text-gray-500">Try adjusting your search or filter criteria</p>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Github, Mail as GoogleIcon, GraduationCap, BookOpen, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -13,6 +13,10 @@ export default function SignIn() {
   const [errors, setErrors] = useState({});
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the page user was trying to access before being redirected to signin
+  const from = location.state?.from?.pathname || null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,17 +33,22 @@ export default function SignIn() {
     }
 
     try {
-      await login(formData.email, formData.password, userType);
+      const user = await login(formData.email, formData.password, userType);
       
-      // Redirect based on user type
-      if (userType === 'teacher') {
-        navigate('/teacher-dashboard');
+      // If user was redirected from a protected page, go back there
+      if (from) {
+        navigate(from, { replace: true });
       } else {
-        navigate('/dashboard');
+        // Default redirect based on user's role
+        if (user.role === 'teacher') {
+          navigate('/teacher-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
-      setErrors({ general: 'Invalid email or password. Please try again.' });
+      setErrors({ general: error.message || 'Invalid email or password. Please try again.' });
     }
   };
 
@@ -77,6 +86,15 @@ export default function SignIn() {
           <p className="mt-2 text-sm text-gray-600">
             Sign in to continue your learning journey
           </p>
+          
+          {/* Protected Route Message */}
+          {from && (
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800 text-center">
+                🔒 Please sign in to access <span className="font-semibold">{from}</span>
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Sign In Form */}

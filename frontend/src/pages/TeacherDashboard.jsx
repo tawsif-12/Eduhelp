@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Upload, 
@@ -19,66 +19,67 @@ import {
   Download
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import lectureService from '../services/lectureService';
 import LectureUploadForm from '../components/teacher/LectureUploadForm';
 import LectureCard from '../components/teacher/LectureCard';
 
 export default function TeacherDashboard() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
-  const [lectures, setLectures] = useState([
-    {
-      id: 1,
-      title: 'Introduction to React Hooks',
-      description: 'Learn the basics of React Hooks and how to use them effectively.',
-      youtubeUrl: 'https://www.youtube.com/watch?v=O6P86uwfdR0',
-      thumbnail: 'https://img.youtube.com/vi/O6P86uwfdR0/mqdefault.jpg',
-      duration: '45 min',
-      views: 1250,
-      likes: 89,
-      status: 'published',
-      uploadDate: '2024-01-15',
-      category: 'programming',
-      tags: 'react, hooks, javascript'
-    },
-    {
-      id: 2,
-      title: 'Advanced State Management',
-      description: 'Deep dive into advanced state management patterns in React.',
-      youtubeUrl: 'https://www.youtube.com/watch?v=35lXWvCuM8o',
-      thumbnail: 'https://img.youtube.com/vi/35lXWvCuM8o/mqdefault.jpg',
-      duration: '60 min',
-      views: 980,
-      likes: 67,
-      status: 'published',
-      uploadDate: '2024-01-10',
-      category: 'programming',
-      tags: 'react, state, redux'
+  const [lectures, setLectures] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Fetch teacher's lectures on component mount
+  useEffect(() => {
+    if (user && user.id) {
+      fetchTeacherLectures();
+    } else if (!authLoading && !user) {
+      setIsLoading(false);
     }
-  ]);
+  }, [user, authLoading]);
 
-  const handleUploadLecture = (lectureData) => {
-    const lecture = {
-      id: lectures.length + 1,
-      ...lectureData,
-      duration: 'N/A',
-      views: 0,
-      likes: 0,
-      status: 'published',
-      uploadDate: new Date().toISOString().split('T')[0]
-    };
-
-    setLectures([...lectures, lecture]);
-    setActiveTab('lectures'); // Switch to lectures tab after upload
+  const fetchTeacherLectures = async () => {
+    try {
+      setIsLoading(true);
+      const teacherLectures = await lectureService.getLecturesByTeacher(user.id);
+      setLectures(teacherLectures);
+    } catch (error) {
+      console.error('Error fetching lectures:', error);
+      setError('Failed to load lectures. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDeleteLecture = (id) => {
-    setLectures(lectures.filter(lecture => lecture.id !== id));
+  const handleUploadLecture = async (lectureData) => {
+    try {
+      setError('');
+      const lecturePayload = lectureService.prepareLectureData(lectureData, user.id);
+      const newLecture = await lectureService.createLecture(lecturePayload);
+      
+      setLectures([newLecture, ...lectures]);
+      setActiveTab('lectures'); // Switch to lectures tab after upload
+    } catch (error) {
+      console.error('Error uploading lecture:', error);
+      setError(error.message || 'Failed to upload lecture. Please try again.');
+    }
+  };
+
+  const handleDeleteLecture = async (id) => {
+    try {
+      await lectureService.deleteLecture(id);
+      setLectures(lectures.filter(lecture => lecture._id !== id));
+    } catch (error) {
+      console.error('Error deleting lecture:', error);
+      setError('Failed to delete lecture. Please try again.');
+    }
   };
 
   const stats = {
     totalLectures: lectures.length,
-    totalViews: lectures.reduce((sum, lecture) => sum + lecture.views, 0),
-    totalLikes: lectures.reduce((sum, lecture) => sum + lecture.likes, 0),
+    totalViews: lectures.reduce((sum, lecture) => sum + (lecture.stats?.views || lecture.views || 0), 0),
+    totalLikes: lectures.reduce((sum, lecture) => sum + (lecture.stats?.likes || lecture.likes || 0), 0),
     studentsEnrolled: user?.studentsEnrolled || 0
   };
 
@@ -96,9 +97,62 @@ export default function TeacherDashboard() {
     </button>
   );
 
+  // Loading state
+  if (authLoading || isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Authentication check
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-6">Please log in as a teacher to view this dashboard</p>
+          <Link to="/signin" className="text-emerald-600 hover:underline">Sign In</Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Role check
+  if (user.role !== 'teacher') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-6">This dashboard is for teachers only</p>
+          <Link to="/dashboard" className="text-blue-600 hover:underline">Go to Student Dashboard</Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex">
+              <div className="text-red-600 text-sm">{error}</div>
+              <button 
+                onClick={() => setError('')}
+                className="ml-auto text-red-600 hover:text-red-800"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <div className="bg-white rounded-2xl shadow-lg p-6">
@@ -250,9 +304,14 @@ export default function TeacherDashboard() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {lectures.map((lecture) => (
+                {isLoading ? (
+                  <div className="col-span-full text-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <p className="mt-2 text-gray-600">Loading lectures...</p>
+                  </div>
+                ) : lectures.map((lecture) => (
                   <LectureCard
-                    key={lecture.id}
+                    key={lecture._id}
                     lecture={lecture}
                     onEdit={(lecture) => {
                       // TODO: Implement edit functionality
@@ -263,7 +322,7 @@ export default function TeacherDashboard() {
                 ))}
               </div>
 
-              {lectures.length === 0 && (
+              {!isLoading && lectures.length === 0 && (
                 <div className="text-center py-12">
                   <Video className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                   <h4 className="text-lg font-medium text-gray-600 mb-2">No lectures yet</h4>

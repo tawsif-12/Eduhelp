@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import authService from '../services/authService';
+import { isTokenExpired } from '../utils/jwtUtils';
 
 const AuthContext = createContext();
 
@@ -8,63 +10,63 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const savedUser = localStorage.getItem('educa-user');
-    if (savedUser) {
+    const token = authService.getToken();
+    
+    // If we have a saved user but no token or expired token, clear the user data
+    if (savedUser && (!token || isTokenExpired(token))) {
+      localStorage.removeItem('educa-user');
+      authService.removeToken();
+      setUser(null);
+    } else if (savedUser && token && !isTokenExpired(token)) {
       setUser(JSON.parse(savedUser));
     }
+    
     setIsLoading(false);
   }, []);
 
   const login = async (email, password, userType = 'student') => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser = {
-      id: '1',
-      name: 'Tawsif Mannan',
-      email,
-      role: userType,
-      joinedDate: '2023-01-15',
-      coursesEnrolled: userType === 'student' ? 8 : 0,
-      coursesCompleted: userType === 'student' ? 3 : 0,
-      coursesCreated: userType === 'teacher' ? 5 : 0,
-      studentsEnrolled: userType === 'teacher' ? 245 : 0,
-      badges: userType === 'student' 
-        ? ['Early Adopter', 'Math Whiz', 'Consistent Learner'] 
-        : ['Course Creator', 'Expert Educator', 'Community Builder']
-    };
-    
-    setUser(mockUser);
-    localStorage.setItem('educa-user', JSON.stringify(mockUser));
-    setIsLoading(false);
+    try {
+      const response = await authService.login(email, password);
+      
+      // Handle the response structure with token and user
+      const userData = response.user || response;
+      const formattedUser = authService.formatUserData(userData);
+      
+      setUser(formattedUser);
+      localStorage.setItem('educa-user', JSON.stringify(formattedUser));
+      setIsLoading(false);
+      return formattedUser;
+    } catch (error) {
+      setIsLoading(false);
+      throw new Error(error.message || 'Login failed');
+    }
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('educa-user');
+    authService.logout(); // This will remove the JWT token
   };
 
-  const register = async (name, email, password, role) => {
+  const register = async (formData, userType) => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser = {
-      id: '1',
-      name,
-      email,
-      role: role,
-      joinedDate: new Date().toISOString().split('T')[0],
-      coursesEnrolled: role === 'student' ? 0 : undefined,
-      coursesCompleted: role === 'student' ? 0 : undefined,
-      coursesCreated: role === 'teacher' ? 0 : undefined,
-      studentsEnrolled: role === 'teacher' ? 0 : undefined,
-      badges: role === 'student' 
-        ? ['New Member'] 
-        : ['New Educator']
-    };
-    
-    setUser(mockUser);
-    localStorage.setItem('educa-user', JSON.stringify(mockUser));
-    setIsLoading(false);
+    try {
+      const registrationData = authService.prepareRegistrationData(formData, userType);
+      const response = await authService.register(registrationData);
+      
+      // Handle the response structure with token and user
+      const userData = response.user || response;
+      const formattedUser = authService.formatUserData(userData);
+      
+      setUser(formattedUser);
+      localStorage.setItem('educa-user', JSON.stringify(formattedUser));
+      setIsLoading(false);
+      return formattedUser;
+    } catch (error) {
+      setIsLoading(false);
+      throw new Error(error.message || 'Registration failed');
+    }
   };
 
   return (

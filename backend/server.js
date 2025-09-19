@@ -13,9 +13,14 @@ app.use(cors());
 const courseRoutes = require('./routes/courseRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const successStoryRoutes = require('./routes/successStoryRoutes');
+const userRoutes = require('./routes/userRoutes');
+const lectureRoutes = require('./routes/lectureRoutes');
+
 app.use('/api/courses', courseRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/success-stories', successStoryRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/lectures', lectureRoutes);
 
 const PORT = process.env.PORT || 5000;
 
