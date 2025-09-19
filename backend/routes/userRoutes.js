@@ -90,6 +90,7 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     // TEST MODE: Bypass DB for admin login
+    // Only allow login with the specific admin email and password
     if (
       email === 'irfan.cse.20230104064@aust.edu' &&
       password === 'admin123'
