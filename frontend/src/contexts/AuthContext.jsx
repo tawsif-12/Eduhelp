@@ -1,17 +1,19 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import authService from '../services/authService';
 import { isTokenExpired } from '../utils/jwtUtils';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
+
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedUser = localStorage.getItem('educa-user');
     const token = authService.getToken();
-    
     // If we have a saved user but no token or expired token, clear the user data
     if (savedUser && (!token || isTokenExpired(token))) {
       localStorage.removeItem('educa-user');
@@ -20,7 +22,6 @@ export function AuthProvider({ children }) {
     } else if (savedUser && token && !isTokenExpired(token)) {
       setUser(JSON.parse(savedUser));
     }
-    
     setIsLoading(false);
   }, []);
 
@@ -28,14 +29,16 @@ export function AuthProvider({ children }) {
     setIsLoading(true);
     try {
       const response = await authService.login(email, password);
-      
       // Handle the response structure with token and user
       const userData = response.user || response;
       const formattedUser = authService.formatUserData(userData);
-      
       setUser(formattedUser);
       localStorage.setItem('educa-user', JSON.stringify(formattedUser));
       setIsLoading(false);
+      // Redirect admin to dashboard
+      if (formattedUser.role === 'admin') {
+        navigate('/admin-dashboard');
+      }
       return formattedUser;
     } catch (error) {
       setIsLoading(false);

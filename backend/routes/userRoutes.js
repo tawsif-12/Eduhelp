@@ -5,11 +5,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { auth, teacherAuth, studentAuth } = require('../middleware/auth');
 
-// GET all users (admin only - for now just return basic info)
-router.get('/', async (req, res) => {
+// GET all users (admin only)
+router.get('/', auth, async (req, res) => {
   try {
+    if (req.user.userType !== 'admin') {
+      return res.status(403).json({ error: 'Admin privileges required.' });
+    }
     const users = await User.find()
-      .select('-password') // Exclude password from response
+      .select('-password')
       .sort({ createdAt: -1 });
     res.json(users);
   } catch (err) {
@@ -162,9 +165,12 @@ router.get('/role/teachers', async (req, res) => {
   }
 });
 
-// DELETE user
-router.delete('/:id', async (req, res) => {
+// DELETE user (admin only)
+router.delete('/:id', auth, async (req, res) => {
   try {
+    if (req.user.userType !== 'admin') {
+      return res.status(403).json({ error: 'Admin privileges required.' });
+    }
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });

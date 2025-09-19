@@ -3,24 +3,31 @@ import { X, Eye, EyeOff, Github, Mail as GoogleIcon, Users, GraduationCap, BookO
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function AuthModal({ onClose }) {
+  // Check if admin login was triggered
+  const initialUserType = typeof window !== 'undefined' && window.localStorage.getItem('admin-login') === 'true' ? 'admin' : 'student';
   const [isLogin, setIsLogin] = useState(true);
-  const [userType, setUserType] = useState('student');
+  const [userType, setUserType] = useState(initialUserType);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'student'
+    role: initialUserType
   });
   const { login, register, isLoading } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Force userType to 'admin' if admin login modal is open
+      const isAdminLogin = userType === 'admin';
       if (isLogin) {
-        await login(formData.email, formData.password, userType);
+        await login(formData.email, formData.password, isAdminLogin ? 'admin' : userType);
       } else {
-        await register(formData.name, formData.email, formData.password, userType);
+        await register(formData.name, formData.email, formData.password, isAdminLogin ? 'admin' : userType);
+      }
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem('admin-login');
       }
       onClose();
     } catch (error) {
@@ -58,75 +65,80 @@ export default function AuthModal({ onClose }) {
           </button>
         </div>
 
-        {/* User Type Selection */}
-        <div className="p-6 border-b bg-gray-50">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
-            {isLogin ? 'Sign in as:' : 'Join as:'}
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              onClick={() => handleUserTypeChange('student')}
-              className={`flex flex-col items-center p-4 rounded-lg border-2 transition-all duration-200 ${
-                userType === 'student'
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 hover:border-blue-300 hover:bg-blue-50'
-              }`}
-            >
-              <GraduationCap className="h-8 w-8 mb-2" />
-              <span className="font-medium">Student</span>
-              <span className="text-sm text-gray-600 text-center mt-1">
-                Learn and explore courses
-              </span>
-            </button>
-            <button
-              onClick={() => handleUserTypeChange('teacher')}
-              className={`flex flex-col items-center p-4 rounded-lg border-2 transition-all duration-200 ${
-                userType === 'teacher'
-                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                  : 'border-gray-300 hover:border-emerald-300 hover:bg-emerald-50'
-              }`}
-            >
-              <BookOpen className="h-8 w-8 mb-2" />
-              <span className="font-medium">Teacher</span>
-              <span className="text-sm text-gray-600 text-center mt-1">
-                Create and teach courses
-              </span>
-            </button>
+        {/* User Type Selection - hide for admin login */}
+        {userType !== 'admin' && (
+          <div className="p-6 border-b bg-gray-50">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+              {isLogin ? 'Sign in as:' : 'Join as:'}
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => handleUserTypeChange('student')}
+                className={`flex flex-col items-center p-4 rounded-lg border-2 transition-all duration-200 ${
+                  userType === 'student'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-300 hover:border-blue-300 hover:bg-blue-50'
+                }`}
+              >
+                <GraduationCap className="h-8 w-8 mb-2" />
+                <span className="font-medium">Student</span>
+                <span className="text-sm text-gray-600 text-center mt-1">
+                  Learn and explore courses
+                </span>
+              </button>
+              <button
+                onClick={() => handleUserTypeChange('teacher')}
+                className={`flex flex-col items-center p-4 rounded-lg border-2 transition-all duration-200 ${
+                  userType === 'teacher'
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                    : 'border-gray-300 hover:border-emerald-300 hover:bg-emerald-50'
+                }`}
+              >
+                <BookOpen className="h-8 w-8 mb-2" />
+                <span className="font-medium">Teacher</span>
+                <span className="text-sm text-gray-600 text-center mt-1">
+                  Create and teach courses
+                </span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Social Login */}
-        <div className="p-6 border-b">
-          <div className="space-y-3">
-            <button className={`w-full flex items-center justify-center space-x-3 border-2 py-3 px-4 rounded-lg transition-all duration-200 ${
-              userType === 'student' 
-                ? 'border-blue-300 text-blue-700 hover:bg-blue-50' 
-                : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50'
-            }`}>
-              <GoogleIcon className="h-5 w-5" />
-              <span>Continue with Google as {userType === 'student' ? 'Student' : 'Teacher'}</span>
-            </button>
-            <button className={`w-full flex items-center justify-center space-x-3 border-2 py-3 px-4 rounded-lg transition-all duration-200 ${
-              userType === 'student' 
-                ? 'border-gray-300 hover:border-blue-300 hover:bg-blue-50' 
-                : 'border-gray-300 hover:border-emerald-300 hover:bg-emerald-50'
-            }`}>
-              <Github className="h-5 w-5" />
-              <span>Continue with GitHub as {userType === 'student' ? 'Student' : 'Teacher'}</span>
-            </button>
-          </div>
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+        {/* Social Login - hide for admin login */}
+        {userType !== 'admin' && (
+          <div className="p-6 border-b">
+            <div className="space-y-3">
+              <button className={`w-full flex items-center justify-center space-x-3 border-2 py-3 px-4 rounded-lg transition-all duration-200 ${
+                userType === 'student' 
+                  ? 'border-blue-300 text-blue-700 hover:bg-blue-50' 
+                  : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+              }`}>
+                <GoogleIcon className="h-5 w-5" />
+                <span>Continue with Google as {userType === 'student' ? 'Student' : 'Teacher'}</span>
+              </button>
+              <button className={`w-full flex items-center justify-center space-x-3 border-2 py-3 px-4 rounded-lg transition-all duration-200 ${
+                userType === 'student' 
+                  ? 'border-gray-300 hover:border-blue-300 hover:bg-blue-50' 
+                  : 'border-gray-300 hover:border-emerald-300 hover:bg-emerald-50'
+              }`}>
+                <Github className="h-5 w-5" />
+                <span>Continue with GitHub as {userType === 'student' ? 'Student' : 'Teacher'}</span>
+              </button>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">or</span>
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">or</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {!isLogin && (
+          {/* Hide name field for admin login */}
+          {!isLogin && userType !== 'admin' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name
@@ -188,6 +200,7 @@ export default function AuthModal({ onClose }) {
             </div>
           </div>
 
+          {/* Hide benefits for admin login */}
           {!isLogin && userType === 'teacher' && (
             <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
               <h4 className="font-medium text-emerald-800 mb-2">Teacher Benefits:</h4>
@@ -218,10 +231,17 @@ export default function AuthModal({ onClose }) {
             className={`w-full text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed ${
               userType === 'student'
                 ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
-                : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800'
+                : userType === 'teacher'
+                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800'
+                  : 'bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black'
             }`}
           >
-            {isLoading ? 'Please wait...' : (isLogin ? `Sign In as ${userType === 'student' ? 'Student' : 'Teacher'}` : `Create ${userType === 'student' ? 'Student' : 'Teacher'} Account`)}
+            {isLoading
+              ? 'Please wait...'
+              : isLogin
+                ? (userType === 'admin' ? 'Sign In' : `Sign In as ${userType === 'student' ? 'Student' : 'Teacher'}`)
+                : (userType === 'admin' ? 'Create Admin Account' : `Create ${userType === 'student' ? 'Student' : 'Teacher'} Account`)
+            }
           </button>
 
           <div className="text-center">

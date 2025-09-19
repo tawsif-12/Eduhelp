@@ -96,6 +96,15 @@ export default function Navbar() {
                   >
                     Sign Up
                   </Link>
+                  <button
+                    className="text-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 rounded-lg font-medium hover:from-gray-800 hover:to-black transition-all duration-200 hover:scale-105 transform"
+                    onClick={() => {
+                      setShowAuthModal(true);
+                      window.localStorage.setItem('admin-login', 'true');
+                    }}
+                  >
+                    Admin Login
+                  </button>
                 </div>
               )}
             </div>
