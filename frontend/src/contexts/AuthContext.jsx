@@ -14,19 +14,23 @@ export function AuthProvider({ children }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, userType = 'student') => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     const mockUser = {
       id: '1',
-  name: 'Tawsif Mannan',
+      name: 'Tawsif Mannan',
       email,
-      role: 'student',
+      role: userType,
       joinedDate: '2023-01-15',
-      coursesEnrolled: 8,
-      coursesCompleted: 3,
-      badges: ['Early Adopter', 'Math Whiz', 'Consistent Learner']
+      coursesEnrolled: userType === 'student' ? 8 : 0,
+      coursesCompleted: userType === 'student' ? 3 : 0,
+      coursesCreated: userType === 'teacher' ? 5 : 0,
+      studentsEnrolled: userType === 'teacher' ? 245 : 0,
+      badges: userType === 'student' 
+        ? ['Early Adopter', 'Math Whiz', 'Consistent Learner'] 
+        : ['Course Creator', 'Expert Educator', 'Community Builder']
     };
     
     setUser(mockUser);
@@ -49,9 +53,13 @@ export function AuthProvider({ children }) {
       email,
       role: role,
       joinedDate: new Date().toISOString().split('T')[0],
-      coursesEnrolled: 0,
-      coursesCompleted: 0,
-      badges: ['New Member']
+      coursesEnrolled: role === 'student' ? 0 : undefined,
+      coursesCompleted: role === 'student' ? 0 : undefined,
+      coursesCreated: role === 'teacher' ? 0 : undefined,
+      studentsEnrolled: role === 'teacher' ? 0 : undefined,
+      badges: role === 'student' 
+        ? ['New Member'] 
+        : ['New Educator']
     };
     
     setUser(mockUser);

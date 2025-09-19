@@ -13,8 +13,13 @@ export default function Navbar() {
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/courses', label: 'Courses' },
+    { to: '/lectures', label: 'Lectures' },
     { to: '/community', label: 'Community' },
-    { to: '/dashboard', label: 'Dashboard', requireAuth: true },
+    { 
+      to: user?.role === 'teacher' ? '/teacher-dashboard' : '/dashboard', 
+      label: user?.role === 'teacher' ? 'My Lectures' : 'Dashboard', 
+      requireAuth: true 
+    },
   ];
 
   return (
@@ -78,12 +83,20 @@ export default function Navbar() {
                   </div>
                 </>
               ) : (
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 hover:scale-105 transform"
-                >
-                  Sign In
-                </button>
+                <div className="flex items-center space-x-3">
+                  <Link
+                    to="/signin"
+                    className="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 hover:scale-105 transform"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
               )}
             </div>
 
@@ -118,15 +131,22 @@ export default function Navbar() {
                 )
               ))}
               {!user && (
-                <button
-                  onClick={() => {
-                    setShowAuthModal(true);
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-                >
-                  Sign In
-                </button>
+                <>
+                  <Link
+                    to="/signin"
+                    className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </>
               )}
             </div>
           </div>
