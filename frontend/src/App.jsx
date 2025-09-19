@@ -19,62 +19,68 @@ import AdminDashboard from './pages/AdminDashboard';
 function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <main>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/courses" element={
-              <ProtectedRoute showAuthChoice={true}>
-                <CourseCatalog />
-              </ProtectedRoute>
-            } />
-            <Route path="/lectures" element={
-              <ProtectedRoute>
-                <LecturesPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/course/:id" element={
-              <ProtectedRoute>
-                <CoursePage />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/teacher-dashboard" element={
-              <ProtectedRoute>
-                <TeacherDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/community" element={
-              <ProtectedRoute>
-                <Community />
-              </ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin" element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin-dashboard" element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <Routes>
+        {/* Routes without Navbar/Footer */}
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin-dashboard" element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        {/* All other routes with Navbar/Footer */}
+        <Route path="*" element={
+          <div className="min-h-screen bg-gray-50">
+            <Navbar />
+            <main>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/courses" element={
+                  <ProtectedRoute showAuthChoice={true}>
+                    <CourseCatalog />
+                  </ProtectedRoute>
+                } />
+                <Route path="/lectures" element={
+                  <ProtectedRoute>
+                    <LecturesPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/course/:id" element={
+                  <ProtectedRoute>
+                    <CoursePage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/teacher-dashboard" element={
+                  <ProtectedRoute>
+                    <TeacherDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/community" element={
+                  <ProtectedRoute>
+                    <Community />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        } />
+      </Routes>
     </AuthProvider>
   );
 }
