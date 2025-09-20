@@ -83,18 +83,10 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/signin" element={<SignIn />} />
-                <Route path="/courses" element={
-                  <ProtectedRoute showAuthChoice={true}>
-                    <CourseCatalog />
-                  </ProtectedRoute>
-                } />
-                <Route path="/lectures" element={
-                  <ProtectedRoute>
-                    <LecturesPage />
-                  </ProtectedRoute>
-                } />
+                <Route path="/courses" element={<CourseCatalog />} />
+                <Route path="/lectures" element={<LecturesPage />} />
                 <Route path="/course/:id" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute showAuthChoice={true}>
                     <CoursePage />
                   </ProtectedRoute>
                 } />

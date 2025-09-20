@@ -2,12 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Star, Clock, Users, Award } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import AuthModal from '../components/auth/AuthModal';
 
 function CourseCatalog() {
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || 'All',
     difficulty: 'All',
@@ -64,6 +68,14 @@ function CourseCatalog() {
       ...prev,
       [filterType]: value
     }));
+  };
+
+  const handleCourseClick = (e, courseId) => {
+    if (!user) {
+      e.preventDefault();
+      setShowAuthModal(true);
+    }
+    // If user is authenticated, the Link will handle navigation normally
   };
 
   return (
@@ -186,6 +198,7 @@ function CourseCatalog() {
             <Link
               key={course.id}
               to={`/course/${course.id}`}
+              onClick={(e) => handleCourseClick(e, course.id)}
               className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-200"
             >
               <div className="p-6">
@@ -253,6 +266,38 @@ function CourseCatalog() {
           </div>
         )}
       </div>
+      
+      {/* Authentication Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Sign In Required</h3>
+            <p className="text-gray-600 mb-6">Please sign in or create an account to access this course.</p>
+            <div className="flex space-x-4">
+              <Link
+                to="/signin"
+                className="flex-1 bg-blue-600 text-white text-center py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                onClick={() => setShowAuthModal(false)}
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/signup"
+                className="flex-1 border border-blue-600 text-blue-600 text-center py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                onClick={() => setShowAuthModal(false)}
+              >
+                Sign Up
+              </Link>
+            </div>
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="w-full mt-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

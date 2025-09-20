@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Star, Users, Award, BookOpen, Clock, TrendingUp } from 'lucide-react';
+import { Search, Users, Award, BookOpen, TrendingUp } from 'lucide-react';
 
 const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [successStories, setSuccessStories] = useState([]);
   
   useEffect(() => {
-    fetch('http://localhost:5003/api/courses')
-      .then(res => res.json())
-      .then(data => setCourses(data));
     fetch('http://localhost:5003/api/categories')
       .then(res => res.json())
       .then(data => setCategories(data));
-  fetch('http://localhost:5003/api/success-stories')
+    fetch('http://localhost:5003/api/success-stories')
       .then(res => res.json())
       .then(data => setSuccessStories(data))
       .catch(err => console.error('Error fetching success stories:', err));
   }, []);
-  const featuredCourses = courses.filter(course => course.featured);
 
   return (
     <div className="space-y-16">
@@ -88,76 +83,6 @@ const HomePage = () => {
                 <div className="text-gray-600">{stat.label}</div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Courses */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Courses</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Discover our most popular and highly-rated courses taught by industry experts
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredCourses.map(course => (
-              <Link
-                key={course.id}
-                to={`/course/${course.id}`}
-                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-200"
-              >
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                      {course.category}
-                    </span>
-                    <div className="flex items-center space-x-1">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-medium">{course.rating}</span>
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
-                    {course.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    {course.description}
-                  </p>
-                  
-                  <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
-                    <div className="flex items-center space-x-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{course.duration}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Users className="h-4 w-4" />
-                      <span>{course.studentsEnrolled}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-sm text-gray-700">{course.instructor.name}</span>
-                    </div>
-                    <div className="text-2xl font-bold text-blue-600">
-                      ${course.price}
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-          
-          <div className="text-center mt-12">
-            <Link
-              to="/courses"
-              className="inline-block bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
-            >
-              View All Courses
-            </Link>
           </div>
         </div>
       </section>

@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Eye, Star, Clock, User, Youtube, Search, Filter } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import lectureService from '../services/lectureService';
 
 export default function LecturesPage() {
+  const { user } = useAuth();
   const [lectures, setLectures] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Fetch lectures from backend
   useEffect(() => {
@@ -79,6 +83,10 @@ export default function LecturesPage() {
   ];
 
   const handleWatchLecture = (youtubeUrl) => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     window.open(youtubeUrl, '_blank', 'noopener,noreferrer');
   };
 
@@ -287,6 +295,38 @@ export default function LecturesPage() {
           )}
         </div>
       </div>
+      
+      {/* Authentication Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Sign In Required</h3>
+            <p className="text-gray-600 mb-6">Please sign in or create an account to watch this lecture.</p>
+            <div className="flex space-x-4">
+              <Link
+                to="/signin"
+                className="flex-1 bg-blue-600 text-white text-center py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                onClick={() => setShowAuthModal(false)}
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/signup"
+                className="flex-1 border border-blue-600 text-blue-600 text-center py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                onClick={() => setShowAuthModal(false)}
+              >
+                Sign Up
+              </Link>
+            </div>
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="w-full mt-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
