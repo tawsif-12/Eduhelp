@@ -11,7 +11,6 @@ export default function Navbar() {
   const location = useLocation();
 
   const navLinks = [
-    { to: '/', label: 'Home' },
     { to: '/courses', label: 'Courses' },
     { to: '/lectures', label: 'Lectures' },
     { to: '/community', label: 'Community' },
@@ -21,6 +20,11 @@ export default function Navbar() {
       requireAuth: true 
     },
   ];
+
+  // Add Home link only for non-students (guests, admins, teachers)
+  if (!user || (user.role && user.role !== 'student')) {
+    navLinks.unshift({ to: '/', label: 'Home' });
+  }
 
   return (
     <>
