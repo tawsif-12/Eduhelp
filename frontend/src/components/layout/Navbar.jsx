@@ -10,24 +10,38 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
 
-  const navLinks = [
-    { to: '/courses', label: 'Courses' },
-    { to: '/lectures', label: 'Lectures' },
-    { to: '/community', label: 'Community' },
-  ];
+  // Create navigation links based on user role
+  let navLinks = [];
 
-  // Add Home link only for non-students (guests, admins, teachers)
-  if (!user || (user.role && user.role !== 'student')) {
-    navLinks.unshift({ to: '/', label: 'Home' });
-  }
-
-  // Add Dashboard link only for non-students (guests, admins, teachers)
-  if (!user || (user.role && user.role !== 'student')) {
-    navLinks.push({ 
-      to: user?.role === 'teacher' ? '/teacher-dashboard' : '/dashboard', 
-      label: user?.role === 'teacher' ? 'My Lectures' : 'Dashboard', 
-      requireAuth: true 
-    });
+  if (user && user.role === 'teacher') {
+    // For teachers, show only "My Lectures"
+    navLinks = [
+      { 
+        to: '/teacher-dashboard', 
+        label: 'My Lectures', 
+        requireAuth: true 
+      }
+    ];
+  } else if (user && user.role === 'student') {
+    // For students, show Courses, Lectures, Community (no Home, no Dashboard)
+    navLinks = [
+      { to: '/courses', label: 'Courses' },
+      { to: '/lectures', label: 'Lectures' },
+      { to: '/community', label: 'Community' },
+    ];
+  } else {
+    // For guests and admins, show all navigation
+    navLinks = [
+      { to: '/', label: 'Home' },
+      { to: '/courses', label: 'Courses' },
+      { to: '/lectures', label: 'Lectures' },
+      { to: '/community', label: 'Community' },
+      { 
+        to: '/dashboard', 
+        label: 'Dashboard', 
+        requireAuth: true 
+      }
+    ];
   }
 
   return (
@@ -52,6 +66,9 @@ export default function Navbar() {
                   <Link
                     key={link.to}
                     to={link.to}
+                    onClick={() => {
+                      console.log('Navigating to:', link.to, 'Label:', link.label);
+                    }}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-105 ${
                       location.pathname === link.to
                         ? 'text-blue-600 bg-blue-50'
@@ -141,7 +158,10 @@ export default function Navbar() {
                         ? 'text-blue-600 bg-blue-50'
                         : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
                     }`}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                      console.log('Mobile: Navigating to:', link.to, 'Label:', link.label);
+                      setIsMenuOpen(false);
+                    }}
                   >
                     {link.label}
                   </Link>

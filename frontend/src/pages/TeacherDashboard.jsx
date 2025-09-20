@@ -34,9 +34,13 @@ export default function TeacherDashboard() {
 
   // Fetch teacher's lectures on component mount
   useEffect(() => {
-    if (user && user.id) {
+    const teacherId = user?.id || user?._id;
+    if (user && teacherId) {
       fetchTeacherLectures();
     } else if (!authLoading && !user) {
+      setIsLoading(false);
+    } else if (user && !teacherId) {
+      setError('User ID not found. Please log in again.');
       setIsLoading(false);
     }
   }, [user, authLoading]);
@@ -44,11 +48,22 @@ export default function TeacherDashboard() {
   const fetchTeacherLectures = async () => {
     try {
       setIsLoading(true);
-      const teacherLectures = await lectureService.getLecturesByTeacher(user.id);
-      setLectures(teacherLectures);
+      setError(''); // Clear any previous errors
+      
+      const teacherId = user?.id || user?._id;
+      if (!teacherId) {
+        throw new Error('User ID not found. Please log in again.');
+      }
+      
+      console.log('Fetching lectures for teacher ID:', teacherId);
+      const teacherLectures = await lectureService.getLecturesByTeacher(teacherId);
+      console.log('Fetched lectures:', teacherLectures);
+      
+      setLectures(Array.isArray(teacherLectures) ? teacherLectures : []);
     } catch (error) {
       console.error('Error fetching lectures:', error);
-      setError('Failed to load lectures. Please try again.');
+      setError(error.message || 'Failed to load lectures. Please check your connection and try again.');
+      setLectures([]); // Set empty array on error
     } finally {
       setIsLoading(false);
     }
@@ -319,38 +334,73 @@ export default function TeacherDashboard() {
                 </button>
               </div>
 
+              {/* Debug Info */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="mb-4 p-4 bg-gray-100 rounded-lg text-sm">
+                  <p><strong>Debug Info:</strong></p>
+                  <p>User ID: {user?.id || user?._id || 'No ID found'}</p>
+                  <p>Is Loading: {isLoading.toString()}</p>
+                  <p>Lectures Count: {lectures.length}</p>
+                  <p>Error: {error || 'None'}</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {isLoading ? (
                   <div className="col-span-full text-center py-8">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     <p className="mt-2 text-gray-600">Loading lectures...</p>
                   </div>
-                ) : lectures.map((lecture) => (
-                  <LectureCard
-                    key={lecture._id}
-                    lecture={lecture}
-                    onEdit={(lecture) => {
-                      // TODO: Implement edit functionality
-                      console.log('Edit lecture:', lecture);
-                    }}
-                    onDelete={handleDeleteLecture}
-                  />
-                ))}
+                ) : error ? (
+                  <div className="col-span-full text-center py-8">
+                    <div className="text-red-600 mb-4">⚠️ Error loading lectures</div>
+                    <p className="text-gray-600 mb-4">{error}</p>
+                    <button
+                      onClick={fetchTeacherLectures}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : lectures.length > 0 ? (
+                  lectures.map((lecture, index) => {
+                    try {
+                      return (
+                        <LectureCard
+                          key={lecture._id || lecture.id || index}
+                          lecture={lecture}
+                          onEdit={(lecture) => {
+                            // TODO: Implement edit functionality
+                            console.log('Edit lecture:', lecture);
+                          }}
+                          onDelete={handleDeleteLecture}
+                        />
+                      );
+                    } catch (cardError) {
+                      console.error('Error rendering LectureCard:', cardError);
+                      return (
+                        <div key={lecture._id || lecture.id || index} className="border border-red-200 rounded-xl p-4 bg-red-50">
+                          <h4 className="text-red-600 font-medium">Error loading lecture</h4>
+                          <p className="text-sm text-red-500 mt-1">{lecture.title || 'Unknown lecture'}</p>
+                          <p className="text-xs text-red-400 mt-2">Card rendering failed</p>
+                        </div>
+                      );
+                    }
+                  })
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <Video className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <h4 className="text-lg font-medium text-gray-600 mb-2">No lectures yet</h4>
+                    <p className="text-gray-500 mb-4">Start by uploading your first lecture</p>
+                    <button
+                      onClick={() => setActiveTab('upload')}
+                      className="bg-emerald-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-emerald-700 transition-colors duration-200"
+                    >
+                      Upload Your First Lecture
+                    </button>
+                  </div>
+                )}
               </div>
-
-              {!isLoading && lectures.length === 0 && (
-                <div className="text-center py-12">
-                  <Video className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h4 className="text-lg font-medium text-gray-600 mb-2">No lectures yet</h4>
-                  <p className="text-gray-500 mb-4">Start by uploading your first lecture</p>
-                  <button
-                    onClick={() => setActiveTab('upload')}
-                    className="bg-emerald-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-emerald-700 transition-colors duration-200"
-                  >
-                    Upload Your First Lecture
-                  </button>
-                </div>
-              )}
             </div>
           )}
 
