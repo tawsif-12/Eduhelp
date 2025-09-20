@@ -10,10 +10,12 @@ const CourseSchema = new mongoose.Schema({
   duration: String,
   studentsEnrolled: Number,
   instructor: {
-    name: String
+    name: String,
+    bio: String
   },
   price: Number,
-  tags: [String]
+  tags: [String],
+  lessons: Number
 });
 
 module.exports = mongoose.model('Course', CourseSchema);

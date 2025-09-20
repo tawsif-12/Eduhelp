@@ -10,6 +10,8 @@ import SignIn from './pages/SignIn';
 import CourseCatalog from './pages/CourseCatalog';
 import LecturesPage from './pages/LecturesPage';
 import CoursePage from './pages/CoursePage';
+import CourseDetailsPage from './pages/CourseDetailsPage';
+import TestCoursePage from './pages/TestCoursePage';
 import Dashboard from './pages/Dashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import Community from './pages/Community';
@@ -90,6 +92,12 @@ function App() {
                     <CoursePage />
                   </ProtectedRoute>
                 } />
+                <Route path="/course-details/:id" element={
+                  <ProtectedRoute showAuthChoice={true}>
+                    <CourseDetailsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/test-courses" element={<TestCoursePage />} />
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />

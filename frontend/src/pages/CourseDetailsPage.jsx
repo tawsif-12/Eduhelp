@@ -1,28 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Clock, Users, Award, Play, BookOpen, CheckCircle, Lock } from 'lucide-react';
+import { Star, Clock, Users, Award, Play, BookOpen, CheckCircle, Lock, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function CoursePage() {
+export default function CourseDetailsPage() {
   const { id } = useParams();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
-  const [courses, setCourses] = useState([]);
+  const [course, setCourse] = useState(null);
+  const [lectures, setLectures] = useState([]);
+  const [currentVideo, setCurrentVideo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
-  React.useEffect(() => {
-    fetch('http://localhost:5003/api/courses')
-      .then(res => res.json())
-      .then(data => setCourses(data));
-  }, []);
-  
-  const course = courses.find(c => c._id === id);
-  
-  if (!course) {
+  useEffect(() => {
+    const fetchCourseDetails = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`http://localhost:5003/api/courses/${id}`);
+        if (!response.ok) {
+          throw new Error('Course not found');
+        }
+        const data = await response.json();
+        setCourse(data);
+        setLectures(data.lectures || []);
+        
+        // Set the first lecture as the current video if available
+        if (data.lectures && data.lectures.length > 0) {
+          setCurrentVideo(data.lectures[0]);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourseDetails();
+  }, [id]);
+
+  const handleVideoSelect = (lecture) => {
+    setCurrentVideo(lecture);
+  };
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Course not found</h1>
-          <Link to="/courses" className="text-blue-600 hover:underline mt-4 inline-block">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading course details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !course) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            {error || 'Course not found'}
+          </h1>
+          <Link to="/courses" className="text-blue-600 hover:underline inline-flex items-center">
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back to courses
           </Link>
         </div>
@@ -30,26 +70,17 @@ export default function CoursePage() {
     );
   }
 
-  const lessons = [
-    { id: 1, title: 'Introduction to the Course', duration: '10 min', completed: true, type: 'video' },
-    { id: 2, title: 'Setting Up Your Development Environment', duration: '15 min', completed: true, type: 'video' },
-    { id: 3, title: 'Your First HTML Page', duration: '20 min', completed: false, type: 'video' },
-    { id: 4, title: 'CSS Fundamentals', duration: '25 min', completed: false, type: 'video' },
-    { id: 5, title: 'Practice Exercise: Build a Portfolio', duration: '30 min', completed: false, type: 'assignment' },
-    { id: 6, title: 'JavaScript Basics', duration: '35 min', completed: false, type: 'video' },
-    { id: 7, title: 'Interactive Elements', duration: '20 min', completed: false, type: 'video' },
-    { id: 8, title: 'Quiz: HTML & CSS Knowledge Check', duration: '15 min', completed: false, type: 'quiz' }
-  ];
-
-  const completedLessons = lessons.filter(l => l.completed).length;
-  const progressPercentage = Math.round((completedLessons / lessons.length) * 100);
-
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'curriculum', label: 'Curriculum' },
     { id: 'instructor', label: 'Instructor' },
     { id: 'reviews', label: 'Reviews' }
   ];
+
+  const getYouTubeEmbedUrl = (youtubeUrl) => {
+    const videoId = youtubeUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)?.[1];
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,16 +99,45 @@ export default function CoursePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Video Player Placeholder */}
+            {/* Video Player */}
             <div className="bg-gray-800 rounded-2xl overflow-hidden aspect-video relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <Play className="h-16 w-16 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold">Course Video Content</h3>
-                  <p className="text-gray-300">Interactive video lessons and tutorials</p>
+              {currentVideo ? (
+                <iframe
+                  src={getYouTubeEmbedUrl(currentVideo.youtubeUrl)}
+                  title={currentVideo.title}
+                  className="w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center text-white">
+                    <Play className="h-16 w-16 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold">Course Preview</h3>
+                    <p className="text-gray-300">Select a lecture to start watching</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Current Video Info */}
+            {currentVideo && (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{currentVideo.title}</h2>
+                <p className="text-gray-600 mb-4">{currentVideo.description}</p>
+                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <span className="flex items-center">
+                    <Clock className="h-4 w-4 mr-1" />
+                    {currentVideo.duration}
+                  </span>
+                  <span className="flex items-center">
+                    <Users className="h-4 w-4 mr-1" />
+                    {currentVideo.stats?.views || 0} views
+                  </span>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Course Info Tabs */}
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
@@ -115,8 +175,8 @@ export default function CoursePage() {
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-xl">
                         <BookOpen className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                        <div className="text-sm text-gray-600">Lessons</div>
-                        <div className="font-semibold">{course.lessons}</div>
+                        <div className="text-sm text-gray-600">Lectures</div>
+                        <div className="font-semibold">{lectures.length}</div>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-xl">
                         <Users className="h-6 w-6 text-blue-600 mx-auto mb-2" />
@@ -130,63 +190,61 @@ export default function CoursePage() {
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">What You'll Learn</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {course.tags.map((tag, index) => (
-                          <div key={index} className="flex items-center space-x-2">
-                            <CheckCircle className="h-5 w-5 text-green-500" />
-                            <span className="text-gray-700">{tag}</span>
-                          </div>
-                        ))}
+                    {course.tags && course.tags.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">What You'll Learn</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {course.tags.map((tag, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                              <span className="text-gray-700">{tag}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
 
                 {activeTab === 'curriculum' && (
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Course Curriculum</h3>
+                    <h3 className="text-lg font-semibold">Course Lectures</h3>
                     <div className="space-y-2">
-                      {lessons.map((lesson, index) => (
-                        <div
-                          key={lesson.id}
-                          className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 ${
-                            lesson.completed
-                              ? 'border-green-200 bg-green-50'
-                              : user
-                              ? 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer'
-                              : 'border-gray-200 bg-gray-50'
-                          }`}
-                        >
-                          <div className="flex items-center space-x-4">
-                            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                              lesson.completed
-                                ? 'bg-green-500 text-white'
-                                : user
-                                ? 'bg-blue-100 text-blue-600'
-                                : 'bg-gray-300 text-gray-500'
-                            }`}>
-                              {lesson.completed ? (
-                                <CheckCircle className="h-4 w-4" />
-                              ) : lesson.type === 'video' ? (
+                      {lectures.length > 0 ? (
+                        lectures.map((lecture, index) => (
+                          <div
+                            key={lecture._id}
+                            onClick={() => handleVideoSelect(lecture)}
+                            className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
+                              currentVideo && currentVideo._id === lecture._id
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-4">
+                              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                                currentVideo && currentVideo._id === lecture._id
+                                  ? 'bg-blue-500 text-white'
+                                  : 'bg-blue-100 text-blue-600'
+                              }`}>
                                 <Play className="h-4 w-4" />
-                              ) : lesson.type === 'quiz' ? (
-                                '?'
-                              ) : (
-                                <BookOpen className="h-4 w-4" />
-                              )}
+                              </div>
+                              <div>
+                                <h4 className="font-medium text-gray-900">{lecture.title}</h4>
+                                <p className="text-sm text-gray-500">{lecture.description}</p>
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="font-medium text-gray-900">{lesson.title}</h4>
-                              <p className="text-sm text-gray-500">{lesson.duration}</p>
+                            <div className="text-sm text-gray-500">
+                              {lecture.duration}
                             </div>
                           </div>
-                          {!user && (
-                            <Lock className="h-5 w-5 text-gray-400" />
-                          )}
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                          <p className="text-gray-500">No lectures available for this course yet.</p>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 )}
@@ -195,7 +253,7 @@ export default function CoursePage() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 mb-2">{course.instructor.name}</h3>
-                      <p className="text-gray-600 mb-4">{course.instructor.bio}</p>
+                      <p className="text-gray-600 mb-4">{course.instructor.bio || 'Experienced educator and industry professional.'}</p>
                     </div>
                     <div>
                       <h4 className="font-semibold mb-2">About the Instructor</h4>
@@ -210,14 +268,14 @@ export default function CoursePage() {
                 {activeTab === 'reviews' && (
                   <div className="space-y-6">
                     <div className="flex items-center space-x-4 mb-6">
-                      <div className="text-4xl font-bold text-gray-900">{course.rating}</div>
+                      <div className="text-4xl font-bold text-gray-900">{course.rating || 4.5}</div>
                       <div>
                         <div className="flex items-center space-x-1 mb-1">
                           {[1, 2, 3, 4, 5].map(star => (
                             <Star
                               key={star}
                               className={`h-5 w-5 ${
-                                star <= course.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                                star <= (course.rating || 4.5) ? 'text-yellow-400 fill-current' : 'text-gray-300'
                               }`}
                             />
                           ))}
@@ -257,15 +315,15 @@ export default function CoursePage() {
                 <div className="space-y-4">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-gray-900 mb-2">
-                      {progressPercentage}% Complete
+                      {lectures.length > 0 ? '0%' : 'Ready'} 
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-3">
                       <div 
                         className="bg-gradient-to-r from-blue-600 to-emerald-600 h-3 rounded-full transition-all duration-300"
-                        style={{ width: `${progressPercentage}%` }}
+                        style={{ width: '0%' }}
                       ></div>
                     </div>
-                    <p className="text-gray-600 mt-2">{completedLessons} of {lessons.length} lessons completed</p>
+                    <p className="text-gray-600 mt-2">0 of {lectures.length} lectures completed</p>
                   </div>
                   
                   <button className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105">
@@ -302,8 +360,8 @@ export default function CoursePage() {
                   <span className="font-medium">{course.duration}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Lessons</span>
-                  <span className="font-medium">{course.lessons}</span>
+                  <span className="text-gray-600">Lectures</span>
+                  <span className="font-medium">{lectures.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Students</span>
@@ -321,10 +379,10 @@ export default function CoursePage() {
               <h3 className="text-lg font-semibold mb-4">Your Instructor</h3>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">{course.instructor.name}</h4>
-                <p className="text-gray-600 text-sm mb-2">{course.instructor.bio}</p>
+                <p className="text-gray-600 text-sm mb-2">{course.instructor.bio || 'Experienced educator'}</p>
                 <div className="flex items-center space-x-1">
                   <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                  <span className="text-sm text-gray-600">{course.rating} rating</span>
+                  <span className="text-sm text-gray-600">{course.rating || 4.5} rating</span>
                 </div>
               </div>
             </div>

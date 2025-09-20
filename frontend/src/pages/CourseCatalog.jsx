@@ -12,6 +12,8 @@ function CourseCatalog() {
   const [categories, setCategories] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || 'All',
     difficulty: 'All',
@@ -22,26 +24,60 @@ function CourseCatalog() {
 
   // Fetch courses and categories from backend
   useEffect(() => {
-    fetch('http://localhost:5003/api/courses')
-      .then(res => res.json())
-      .then(data => {
-        setCourses(data);
-        setFilteredCourses(data);
-      });
-    fetch('http://localhost:5003/api/categories')
-      .then(res => res.json())
-      .then(data => setCategories(data));
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('Fetching courses from API...');
+        
+        // Fetch courses
+        const coursesResponse = await fetch('http://localhost:5003/api/courses');
+        console.log('Courses API response status:', coursesResponse.status);
+        
+        if (!coursesResponse.ok) {
+          throw new Error(`Failed to fetch courses: ${coursesResponse.status} ${coursesResponse.statusText}`);
+        }
+        
+        const coursesData = await coursesResponse.json();
+        console.log('Courses data received:', coursesData);
+        setCourses(coursesData);
+        setFilteredCourses(coursesData);
+        
+        // Fetch categories
+        const categoriesResponse = await fetch('http://localhost:5003/api/categories');
+        console.log('Categories API response status:', categoriesResponse.status);
+        
+        if (!categoriesResponse.ok) {
+          throw new Error(`Failed to fetch categories: ${categoriesResponse.status} ${categoriesResponse.statusText}`);
+        }
+        
+        const categoriesData = await categoriesResponse.json();
+        console.log('Categories data received:', categoriesData);
+        setCategories(categoriesData);
+        
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
+    console.log('Filtering courses...', { courses: courses.length, filters, searchTerm });
     let filtered = [...courses];
 
     if (filters.category !== 'All') {
       filtered = filtered.filter(course => course.category === filters.category);
+      console.log('After category filter:', filtered.length);
     }
 
     if (filters.difficulty !== 'All') {
       filtered = filtered.filter(course => course.difficulty === filters.difficulty);
+      console.log('After difficulty filter:', filtered.length);
     }
 
     if (filters.certification !== 'All') {
@@ -50,6 +86,7 @@ function CourseCatalog() {
       } else {
         filtered = filtered.filter(course => !course.certification);
       }
+      console.log('After certification filter:', filtered.length);
     }
 
     if (searchTerm) {
@@ -58,8 +95,10 @@ function CourseCatalog() {
         course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (course.tags && course.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
       );
+      console.log('After search filter:', filtered.length);
     }
 
+    console.log('Final filtered courses:', filtered.length);
     setFilteredCourses(filtered);
   }, [filters, searchTerm, courses]);
 
@@ -81,11 +120,40 @@ function CourseCatalog() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Course Catalog</h1>
-          <p className="text-xl text-gray-600">Discover your next learning adventure</p>
-        </div>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-16">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading courses...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-8">
+            <strong className="font-bold">Error: </strong>
+            <span className="block sm:inline">{error}</span>
+            <div className="mt-2 text-sm">
+              <p>Please check:</p>
+              <ul className="list-disc ml-6">
+                <li>Backend server is running on port 5003</li>
+                <li>Database is connected</li>
+                <li>CORS is properly configured</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content - only show if not loading and no error */}
+        {!loading && !error && (
+          <>
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">Course Catalog</h1>
+              <p className="text-xl text-gray-600">Discover your next learning adventure</p>
+            </div>
 
         {/* Search and Filters */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
@@ -190,15 +258,19 @@ function CourseCatalog() {
           <p className="text-gray-600">
             Showing {filteredCourses.length} of {courses.length} courses
           </p>
+          {/* Debug info */}
+          <div className="text-sm text-gray-500 mt-2">
+            Debug: courses array length = {courses.length}, filteredCourses length = {filteredCourses.length}
+          </div>
         </div>
 
         {/* Course Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredCourses.map(course => (
             <Link
-              key={course.id}
-              to={`/course/${course.id}`}
-              onClick={(e) => handleCourseClick(e, course.id)}
+              key={course._id}
+              to={`/course-details/${course._id}`}
+              onClick={(e) => handleCourseClick(e, course._id)}
               className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-200"
             >
               <div className="p-6">
@@ -265,7 +337,8 @@ function CourseCatalog() {
             <p className="text-gray-600">Try adjusting your filters or search terms</p>
           </div>
         )}
-      </div>
+          </>
+        )}
       
       {/* Authentication Modal */}
       {showAuthModal && (
@@ -298,6 +371,7 @@ function CourseCatalog() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

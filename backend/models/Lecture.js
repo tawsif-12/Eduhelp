@@ -55,6 +55,10 @@ const LectureSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  courseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course'
+  },
   stats: {
     views: {
       type: Number,
