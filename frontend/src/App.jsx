@@ -68,6 +68,12 @@ function App() {
             <AdminDashboard />
           </ProtectedRoute>
         } />
+        {/* Teacher Dashboard without Navbar/Footer */}
+        <Route path="/teacher-dashboard" element={
+          <ProtectedRoute>
+            <TeacherDashboard />
+          </ProtectedRoute>
+        } />
         {/* All other routes with Navbar/Footer */}
         <Route path="*" element={
           <div className="min-h-screen bg-gray-50">
@@ -95,11 +101,6 @@ function App() {
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/teacher-dashboard" element={
-                  <ProtectedRoute>
-                    <TeacherDashboard />
                   </ProtectedRoute>
                 } />
                 <Route path="/community" element={

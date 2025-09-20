@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Upload, 
   Video, 
@@ -16,7 +16,8 @@ import {
   Eye,
   Clock,
   Star,
-  Download
+  Download,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import lectureService from '../services/lectureService';
@@ -24,7 +25,8 @@ import LectureUploadForm from '../components/teacher/LectureUploadForm';
 import LectureCard from '../components/teacher/LectureCard';
 
 export default function TeacherDashboard() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, logout, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [lectures, setLectures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,6 +76,11 @@ export default function TeacherDashboard() {
       console.error('Error deleting lecture:', error);
       setError('Failed to delete lecture. Please try again.');
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   const stats = {
@@ -165,19 +172,28 @@ export default function TeacherDashboard() {
                   Manage your lectures and engage with your students
                 </p>
               </div>
-              <div className="hidden md:flex items-center space-x-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-600">{stats.totalLectures}</div>
-                  <div className="text-sm text-gray-600">Lectures</div>
+              <div className="flex items-center space-x-6">
+                <div className="hidden md:flex items-center space-x-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-emerald-600">{stats.totalLectures}</div>
+                    <div className="text-sm text-gray-600">Lectures</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-emerald-600">{stats.totalViews}</div>
+                    <div className="text-sm text-gray-600">Total Views</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-emerald-600">{stats.studentsEnrolled}</div>
+                    <div className="text-sm text-gray-600">Students</div>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-600">{stats.totalViews}</div>
-                  <div className="text-sm text-gray-600">Total Views</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-600">{stats.studentsEnrolled}</div>
-                  <div className="text-sm text-gray-600">Students</div>
-                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </button>
               </div>
             </div>
           </div>
