@@ -20,10 +20,15 @@ export function AuthProvider({ children }) {
       authService.removeToken();
       setUser(null);
     } else if (savedUser && token && !isTokenExpired(token)) {
-      setUser(JSON.parse(savedUser));
+      const parsedUser = JSON.parse(savedUser);
+      setUser(parsedUser);
+      // Redirect teacher to dashboard if not already there
+      if (parsedUser.role === 'teacher' && window.location.pathname !== '/teacher-dashboard') {
+        navigate('/teacher-dashboard');
+      }
     }
     setIsLoading(false);
-  }, []);
+  }, [navigate]);
 
   const login = async (email, password, userType = 'student') => {
     setIsLoading(true);
@@ -35,9 +40,11 @@ export function AuthProvider({ children }) {
       setUser(formattedUser);
       localStorage.setItem('educa-user', JSON.stringify(formattedUser));
       setIsLoading(false);
-      // Redirect admin to dashboard
+      // Redirect admin or teacher to dashboard
       if (formattedUser.role === 'admin') {
         navigate('/admin');
+      } else if (formattedUser.role === 'teacher') {
+        navigate('/teacher-dashboard');
       }
       return formattedUser;
     } catch (error) {
@@ -65,6 +72,12 @@ export function AuthProvider({ children }) {
       setUser(formattedUser);
       localStorage.setItem('educa-user', JSON.stringify(formattedUser));
       setIsLoading(false);
+      // Redirect admin or teacher to dashboard
+      if (formattedUser.role === 'admin') {
+        navigate('/admin');
+      } else if (formattedUser.role === 'teacher') {
+        navigate('/teacher-dashboard');
+      }
       return formattedUser;
     } catch (error) {
       setIsLoading(false);

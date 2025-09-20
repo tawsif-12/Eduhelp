@@ -48,14 +48,18 @@ router.post('/register', async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+  // Only allow valid roles
+  const allowedRoles = ['student', 'teacher', 'admin'];
+  const finalRole = allowedRoles.includes(role) ? role : 'student';
+  console.log('REGISTER DEBUG: received role =', role, '| finalRole =', finalRole);
     // Create new user
     const user = new User({
       name,
       email,
       password: hashedPassword,
-      role: role || 'student',
+      role: finalRole,
       profile: profile || {},
-      badges: role === 'teacher' ? ['New Educator'] : ['New Member']
+      badges: finalRole === 'teacher' ? ['New Educator'] : ['New Member']
     });
 
     const savedUser = await user.save();
