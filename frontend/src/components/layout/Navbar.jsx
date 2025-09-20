@@ -14,16 +14,20 @@ export default function Navbar() {
     { to: '/courses', label: 'Courses' },
     { to: '/lectures', label: 'Lectures' },
     { to: '/community', label: 'Community' },
-    { 
-      to: user?.role === 'teacher' ? '/teacher-dashboard' : '/dashboard', 
-      label: user?.role === 'teacher' ? 'My Lectures' : 'Dashboard', 
-      requireAuth: true 
-    },
   ];
 
   // Add Home link only for non-students (guests, admins, teachers)
   if (!user || (user.role && user.role !== 'student')) {
     navLinks.unshift({ to: '/', label: 'Home' });
+  }
+
+  // Add Dashboard link only for non-students (guests, admins, teachers)
+  if (!user || (user.role && user.role !== 'student')) {
+    navLinks.push({ 
+      to: user?.role === 'teacher' ? '/teacher-dashboard' : '/dashboard', 
+      label: user?.role === 'teacher' ? 'My Lectures' : 'Dashboard', 
+      requireAuth: true 
+    });
   }
 
   return (
