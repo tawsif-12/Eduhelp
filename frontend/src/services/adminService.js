@@ -91,10 +91,31 @@ export const getCourses = async (params = {}) => {
     if (params.category && params.category !== 'all') queryParams.append('category', params.category);
     if (params.status && params.status !== 'all') queryParams.append('status', params.status);
     
+    console.log('Admin Service: Making request to /courses with params:', queryParams.toString());
     const response = await api.get(`/courses?${queryParams.toString()}`);
+    console.log('Admin Service: Response received:', response.data);
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Failed to fetch courses' };
+    console.error('Admin Service: getCourses error:', error);
+    
+    if (error.response) {
+      // Server responded with error status
+      const errorMessage = error.response.data?.message || `Server error: ${error.response.status}`;
+      console.error('Admin Service: Server error details:', {
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers
+      });
+      throw new Error(errorMessage);
+    } else if (error.request) {
+      // Request made but no response received
+      console.error('Admin Service: Network error - no response:', error.request);
+      throw new Error('Network error: Cannot connect to server');
+    } else {
+      // Something else happened
+      console.error('Admin Service: Request setup error:', error.message);
+      throw new Error(error.message || 'Failed to fetch courses');
+    }
   }
 };
 

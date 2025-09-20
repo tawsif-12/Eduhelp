@@ -15,7 +15,21 @@ const CourseSchema = new mongoose.Schema({
   },
   price: Number,
   tags: [String],
-  lessons: Number
+  lessons: Number,
+  status: {
+    type: String,
+    enum: ['draft', 'published', 'archived'],
+    default: 'draft'
+  },
+  thumbnail: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 module.exports = mongoose.model('Course', CourseSchema);

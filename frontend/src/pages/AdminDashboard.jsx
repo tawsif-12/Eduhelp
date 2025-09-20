@@ -3,9 +3,9 @@ import { useAuth } from '../contexts/AuthContext';
 import LaravelAdminLayout from '../components/admin/LaravelAdminLayout';
 import { getDashboardStats } from '../services/adminService';
 import { 
-  Users, BookOpen, TrendingUp, DollarSign, 
+  Users, BookOpen, TrendingUp, 
   Plus, Edit, Trash2, Search, Filter,
-  BarChart3, PieChart, Calendar, Settings,
+  PieChart, Calendar,
   Activity, Clock, CheckCircle, AlertTriangle,
   Eye, Download, RefreshCw, ArrowUp, ArrowDown
 } from 'lucide-react';
@@ -21,8 +21,7 @@ export default function AdminDashboard() {
       totalUsers: 0,
       totalCourses: 0,
       activeUsers: 0,
-      completionRate: 0,
-      revenue: 0
+      completionRate: 0
     },
     recentUsers: [],
     recentCourses: []
@@ -55,8 +54,7 @@ export default function AdminDashboard() {
           totalUsers: 12450,
           totalCourses: 156,
           activeUsers: 11203,
-          completionRate: 87,
-          revenue: 89240
+          completionRate: 87
         },
         recentUsers: [],
         recentCourses: []
@@ -126,12 +124,12 @@ export default function AdminDashboard() {
       color: 'green' 
     },
     { 
-      icon: DollarSign, 
-      label: 'Revenue', 
-      value: `$${dashboardData.stats.revenue?.toLocaleString() || '0'}`, 
-      change: '+18%', 
+      icon: Users, 
+      label: 'Active Users', 
+      value: dashboardData.stats.activeUsers?.toLocaleString() || '0', 
+      change: '+8%', 
       changeType: 'increase', 
-      color: 'yellow' 
+      color: 'indigo' 
     },
     { 
       icon: TrendingUp, 
@@ -311,18 +309,18 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full flex items-center justify-center space-x-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <Link to="/admin/courses" className="w-full flex items-center justify-center space-x-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 <Plus className="h-4 w-4" />
                 <span>Add Course</span>
-              </button>
-              <button className="w-full flex items-center justify-center space-x-2 p-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+              </Link>
+              <Link to="/admin/users" className="w-full flex items-center justify-center space-x-2 p-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
                 <Users className="h-4 w-4" />
                 <span>Manage Users</span>
-              </button>
-              <button className="w-full flex items-center justify-center space-x-2 p-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                <BarChart3 className="h-4 w-4" />
-                <span>View Reports</span>
-              </button>
+              </Link>
+              <Link to="/admin/lectures" className="w-full flex items-center justify-center space-x-2 p-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                <BookOpen className="h-4 w-4" />
+                <span>Manage Lectures</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -410,7 +408,7 @@ export default function AdminDashboard() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -429,7 +427,7 @@ export default function AdminDashboard() {
                         {course.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{course.revenue}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{course.createdAt || 'Recently'}</td>
                   </tr>
                 ))
                 ) : (

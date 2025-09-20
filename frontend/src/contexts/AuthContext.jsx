@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
       setIsLoading(false);
       // Redirect admin to dashboard
       if (formattedUser.role === 'admin') {
-        navigate('/admin-dashboard');
+        navigate('/admin');
       }
       return formattedUser;
     } catch (error) {

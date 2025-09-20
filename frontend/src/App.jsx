@@ -12,6 +12,7 @@ import LecturesPage from './pages/LecturesPage';
 import CoursePage from './pages/CoursePage';
 import CourseDetailsPage from './pages/CourseDetailsPage';
 import TestCoursePage from './pages/TestCoursePage';
+import AdminLoginTest from './pages/AdminLoginTest';
 import Dashboard from './pages/Dashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import Community from './pages/Community';
@@ -50,21 +51,6 @@ function App() {
             <AdminDashboard />
           </ProtectedRoute>
         } />
-        <Route path="/admin/analytics" element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/revenue" element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/settings" element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
         <Route path="/admin-dashboard" element={
           <ProtectedRoute>
             <AdminDashboard />
@@ -98,6 +84,7 @@ function App() {
                   </ProtectedRoute>
                 } />
                 <Route path="/test-courses" element={<TestCoursePage />} />
+                <Route path="/admin-test" element={<AdminLoginTest />} />
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />

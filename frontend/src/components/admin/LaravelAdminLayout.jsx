@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  Menu, X, Home, Users, BookOpen, BarChart3, Settings, 
+  Menu, X, Home, Users, BookOpen, Settings, 
   Bell, Search, ChevronDown, LogOut, User, Shield,
-  FileText, Calendar, DollarSign, MessageSquare, Layout
+  FileText, Calendar, MessageSquare, Layout
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -31,9 +31,6 @@ export default function LaravelAdminLayout({ children }) {
     { icon: BookOpen, label: 'Courses', path: '/admin/courses', active: location.pathname.includes('/admin/courses') },
     { icon: FileText, label: 'Lectures', path: '/admin/lectures', active: location.pathname.includes('/admin/lectures') },
     { icon: MessageSquare, label: 'Success Stories', path: '/admin/stories', active: location.pathname.includes('/admin/stories') },
-    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics', active: location.pathname.includes('/admin/analytics') },
-    { icon: DollarSign, label: 'Revenue', path: '/admin/revenue', active: location.pathname.includes('/admin/revenue') },
-    { icon: Settings, label: 'Settings', path: '/admin/settings', active: location.pathname.includes('/admin/settings') },
   ];
 
   return (
@@ -134,21 +131,6 @@ export default function LaravelAdminLayout({ children }) {
 
                 {profileDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                    <Link
-                      to="/profile"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <User className="h-4 w-4 mr-2" />
-                      Profile
-                    </Link>
-                    <Link
-                      to="/admin/settings"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <Settings className="h-4 w-4 mr-2" />
-                      Settings
-                    </Link>
-                    <hr className="my-1" />
                     <button
                       onClick={handleLogout}
                       className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

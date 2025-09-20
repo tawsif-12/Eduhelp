@@ -1,154 +1,109 @@
 import React, { useState, useEffect } from 'react';
 import LaravelAdminLayout from '../components/admin/LaravelAdminLayout';
+import { getCourses, deleteCourse, createCourse, updateCourse } from '../services/adminService';
 import { 
   Search, Filter, Plus, Eye, Edit, Trash2, 
   Download, ChevronLeft, ChevronRight, 
   MoreVertical, BookOpen, Users, DollarSign,
-  CheckCircle, XCircle, Clock, Play, Star
+  CheckCircle, XCircle, Clock, Play, Star,
+  Save, X, AlertTriangle
 } from 'lucide-react';
 
 export default function AdminCoursesPage() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCourses, setTotalCourses] = useState(0);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingCourse, setEditingCourse] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingCourse, setDeletingCourse] = useState(null);
+  const [searchTimeout, setSearchTimeout] = useState(null);
   const coursesPerPage = 8;
 
-  useEffect(() => {
-    // Simulate loading courses data
-    setTimeout(() => {
-      setCourses([
-        { 
-          id: 1, 
-          title: 'React Development Masterclass', 
-          instructor: 'Dr. Sarah Smith', 
-          category: 'Programming',
-          status: 'published', 
-          students: 245, 
-          lectures: 24,
-          duration: '12h 30m',
-          price: '$99.99',
-          rating: 4.8,
-          thumbnail: '/api/placeholder/200/120',
-          createdAt: '2025-01-15'
-        },
-        { 
-          id: 2, 
-          title: 'Node.js Backend Development', 
-          instructor: 'Prof. Mike Johnson', 
-          category: 'Programming',
-          status: 'published', 
-          students: 189, 
-          lectures: 18,
-          duration: '10h 45m',
-          price: '$79.99',
-          rating: 4.6,
-          thumbnail: '/api/placeholder/200/120',
-          createdAt: '2025-01-14'
-        },
-        { 
-          id: 3, 
-          title: 'Laravel Framework Mastery', 
-          instructor: 'Sarah Wilson', 
-          category: 'Programming',
-          status: 'draft', 
-          students: 0, 
-          lectures: 20,
-          duration: '15h 20m',
-          price: '$129.99',
-          rating: 0,
-          thumbnail: '/api/placeholder/200/120',
-          createdAt: '2025-01-13'
-        },
-        { 
-          id: 4, 
-          title: 'Digital Marketing Fundamentals', 
-          instructor: 'Emma Davis', 
-          category: 'Marketing',
-          status: 'published', 
-          students: 156, 
-          lectures: 16,
-          duration: '8h 15m',
-          price: '$59.99',
-          rating: 4.4,
-          thumbnail: '/api/placeholder/200/120',
-          createdAt: '2025-01-12'
-        },
-        { 
-          id: 5, 
-          title: 'Advanced Mathematics', 
-          instructor: 'Dr. Robert Brown', 
-          category: 'Mathematics',
-          status: 'published', 
-          students: 203, 
-          lectures: 30,
-          duration: '20h 10m',
-          price: '$89.99',
-          rating: 4.7,
-          thumbnail: '/api/placeholder/200/120',
-          createdAt: '2025-01-11'
-        },
-        { 
-          id: 6, 
-          title: 'Python for Data Science', 
-          instructor: 'Lisa Chen', 
-          category: 'Data Science',
-          status: 'published', 
-          students: 298, 
-          lectures: 25,
-          duration: '18h 30m',
-          price: '$149.99',
-          rating: 4.9,
-          thumbnail: '/api/placeholder/200/120',
-          createdAt: '2025-01-10'
-        },
-        { 
-          id: 7, 
-          title: 'Web Design with Figma', 
-          instructor: 'Jennifer White', 
-          category: 'Design',
-          status: 'pending', 
-          students: 0, 
-          lectures: 12,
-          duration: '6h 45m',
-          price: '$49.99',
-          rating: 0,
-          thumbnail: '/api/placeholder/200/120',
-          createdAt: '2025-01-09'
-        },
-        { 
-          id: 8, 
-          title: 'Machine Learning Basics', 
-          instructor: 'David Martinez', 
-          category: 'Data Science',
-          status: 'published', 
-          students: 167, 
-          lectures: 22,
-          duration: '14h 20m',
-          price: '$119.99',
-          rating: 4.5,
-          thumbnail: '/api/placeholder/200/120',
-          createdAt: '2025-01-08'
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.instructor.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || course.status === filterStatus;
-    const matchesCategory = filterCategory === 'all' || course.category === filterCategory;
+  // Debounced search handler
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
     
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    
+    // Set new timeout for search
+    const newTimeout = setTimeout(() => {
+      setCurrentPage(1); // Reset to first page when searching
+    }, 500);
+    
+    setSearchTimeout(newTimeout);
+  };
 
-  const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
-  const startIndex = (currentPage - 1) * coursesPerPage;
-  const paginatedCourses = filteredCourses.slice(startIndex, startIndex + coursesPerPage);
+  // Fetch courses from backend
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Debug: Check authentication
+      const token = localStorage.getItem('authToken');
+      const user = localStorage.getItem('educa-user');
+      console.log('Admin Courses Debug:', {
+        hasToken: !!token,
+        tokenPreview: token ? token.substring(0, 20) + '...' : 'No token',
+        hasUser: !!user,
+        userInfo: user ? JSON.parse(user) : 'No user'
+      });
+      
+      const params = {
+        page: currentPage,
+        limit: coursesPerPage,
+        search: searchTerm,
+        status: filterStatus !== 'all' ? filterStatus : '',
+        category: filterCategory !== 'all' ? filterCategory : ''
+      };
+      
+      console.log('Fetching courses with params:', params);
+      const response = await getCourses(params);
+      console.log('Courses response:', response);
+      
+      setCourses(response.courses);
+      setTotalPages(response.totalPages);
+      setTotalCourses(response.total);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      setError(`Failed to fetch courses: ${error.message || error.toString()}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, [currentPage, searchTerm, filterStatus, filterCategory]);
+
+  // Handle course deletion
+  const handleDeleteCourse = async () => {
+    if (!deletingCourse) return;
+    
+    try {
+      await deleteCourse(deletingCourse._id);
+      setShowDeleteModal(false);
+      setDeletingCourse(null);
+      fetchCourses(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      setError(error.message || 'Failed to delete course');
+    }
+  };
+
+  // Filter data for frontend display (now simplified since backend handles filtering)
+  const paginatedCourses = courses;
 
   const getStatusBadge = (status) => {
     const styles = {
@@ -166,6 +121,7 @@ export default function AdminCoursesPage() {
       <LaravelAdminLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600">Loading courses...</span>
         </div>
       </LaravelAdminLayout>
     );
@@ -173,6 +129,13 @@ export default function AdminCoursesPage() {
 
   return (
     <LaravelAdminLayout>
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
       {/* Page Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -185,7 +148,10 @@ export default function AdminCoursesPage() {
               <Download className="h-4 w-4" />
               <span>Export</span>
             </button>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button 
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
               <Plus className="h-4 w-4" />
               <span>Add Course</span>
             </button>
@@ -252,7 +218,7 @@ export default function AdminCoursesPage() {
                   type="text"
                   placeholder="Search courses..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
                 />
               </div>
@@ -290,7 +256,7 @@ export default function AdminCoursesPage() {
       {/* Courses Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
         {paginatedCourses.map((course) => (
-          <div key={course.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+          <div key={course._id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
             <div className="relative">
               <div className="w-full h-40 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                 <BookOpen className="h-12 w-12 text-white" />
@@ -303,7 +269,7 @@ export default function AdminCoursesPage() {
             </div>
             <div className="p-4">
               <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{course.title}</h3>
-              <p className="text-sm text-gray-600 mb-2">by {course.instructor}</p>
+              <p className="text-sm text-gray-600 mb-2">by {course.instructor?.name || 'Unknown'}</p>
               <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
                 <span className="bg-gray-100 px-2 py-1 rounded text-xs">{course.category}</span>
                 {course.rating > 0 && (
@@ -316,19 +282,19 @@ export default function AdminCoursesPage() {
               <div className="space-y-2 mb-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">Students:</span>
-                  <span className="font-medium">{course.students}</span>
+                  <span className="font-medium">{course.studentsEnrolled || 0}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">Lectures:</span>
-                  <span className="font-medium">{course.lectures}</span>
+                  <span className="font-medium">{course.lectureCount || course.lessons || 0}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">Duration:</span>
-                  <span className="font-medium">{course.duration}</span>
+                  <span className="font-medium">{course.duration || 'N/A'}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">Price:</span>
-                  <span className="font-medium text-green-600">{course.price}</span>
+                  <span className="font-medium text-green-600">${course.price || 0}</span>
                 </div>
               </div>
               <div className="flex items-center justify-between pt-3 border-t border-gray-200">
@@ -336,10 +302,24 @@ export default function AdminCoursesPage() {
                   <button className="text-blue-600 hover:text-blue-900" title="View">
                     <Eye className="h-4 w-4" />
                   </button>
-                  <button className="text-green-600 hover:text-green-900" title="Edit">
+                  <button 
+                    onClick={() => {
+                      setEditingCourse(course);
+                      setShowEditModal(true);
+                    }}
+                    className="text-green-600 hover:text-green-900" 
+                    title="Edit"
+                  >
                     <Edit className="h-4 w-4" />
                   </button>
-                  <button className="text-red-600 hover:text-red-900" title="Delete">
+                  <button 
+                    onClick={() => {
+                      setDeletingCourse(course);
+                      setShowDeleteModal(true);
+                    }}
+                    className="text-red-600 hover:text-red-900" 
+                    title="Delete"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -374,9 +354,9 @@ export default function AdminCoursesPage() {
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
-                <span className="font-medium">{Math.min(startIndex + coursesPerPage, filteredCourses.length)}</span> of{' '}
-                <span className="font-medium">{filteredCourses.length}</span> results
+                Showing <span className="font-medium">{((currentPage - 1) * coursesPerPage) + 1}</span> to{' '}
+                <span className="font-medium">{Math.min(currentPage * coursesPerPage, totalCourses)}</span> of{' '}
+                <span className="font-medium">{totalCourses}</span> results
               </p>
             </div>
             <div>
@@ -413,6 +393,38 @@ export default function AdminCoursesPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center space-x-3 mb-4">
+              <AlertTriangle className="h-6 w-6 text-red-600" />
+              <h3 className="text-lg font-semibold">Delete Course</h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete "{deletingCourse?.title}"? This action cannot be undone and will also delete all associated lectures.
+            </p>
+            <div className="flex space-x-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeletingCourse(null);
+                }}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteCourse}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </LaravelAdminLayout>
   );
 }

@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Edit3, Award, BookOpen, Calendar, Save, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Profile() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     bio: 'Passionate learner exploring new technologies and concepts.'
   });
+
+  // Redirect admin users to admin dashboard
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      navigate('/admin');
+    }
+  }, [user, navigate]);
 
   if (!user) {
     return (
@@ -22,6 +30,11 @@ export default function Profile() {
         </div>
       </div>
     );
+  }
+
+  // If user is admin, don't render the profile page (will redirect)
+  if (user.role === 'admin') {
+    return null;
   }
 
   const handleSave = () => {
