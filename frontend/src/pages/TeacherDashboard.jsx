@@ -334,16 +334,7 @@ export default function TeacherDashboard() {
                 </button>
               </div>
 
-              {/* Debug Info */}
-              {process.env.NODE_ENV === 'development' && (
-                <div className="mb-4 p-4 bg-gray-100 rounded-lg text-sm">
-                  <p><strong>Debug Info:</strong></p>
-                  <p>User ID: {user?.id || user?._id || 'No ID found'}</p>
-                  <p>Is Loading: {isLoading.toString()}</p>
-                  <p>Lectures Count: {lectures.length}</p>
-                  <p>Error: {error || 'None'}</p>
-                </div>
-              )}
+
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {isLoading ? (
