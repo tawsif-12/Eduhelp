@@ -22,6 +22,13 @@ const CourseSchema = new mongoose.Schema({
     default: 'draft'
   },
   thumbnail: String,
+  videos: [{
+    title: String,
+    description: String,
+    youtubeUrl: String,
+    duration: String,
+    order: Number
+  }],
   createdAt: {
     type: Date,
     default: Date.now

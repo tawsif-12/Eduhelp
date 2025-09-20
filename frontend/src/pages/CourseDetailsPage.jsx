@@ -9,6 +9,7 @@ export default function CourseDetailsPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [course, setCourse] = useState(null);
   const [lectures, setLectures] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [currentVideo, setCurrentVideo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,9 +25,12 @@ export default function CourseDetailsPage() {
         const data = await response.json();
         setCourse(data);
         setLectures(data.lectures || []);
+        setVideos(data.videos || []);
         
-        // Set the first lecture as the current video if available
-        if (data.lectures && data.lectures.length > 0) {
+        // Set the first video or lecture as the current video if available
+        if (data.videos && data.videos.length > 0) {
+          setCurrentVideo(data.videos[0]);
+        } else if (data.lectures && data.lectures.length > 0) {
           setCurrentVideo(data.lectures[0]);
         }
       } catch (err) {
@@ -175,8 +179,8 @@ export default function CourseDetailsPage() {
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-xl">
                         <BookOpen className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                        <div className="text-sm text-gray-600">Lectures</div>
-                        <div className="font-semibold">{lectures.length}</div>
+                        <div className="text-sm text-gray-600">Total Content</div>
+                        <div className="font-semibold">{lectures.length + videos.length}</div>
                       </div>
                       <div className="text-center p-4 bg-gray-50 rounded-xl">
                         <Users className="h-6 w-6 text-blue-600 mx-auto mb-2" />
@@ -203,48 +207,117 @@ export default function CourseDetailsPage() {
                         </div>
                       </div>
                     )}
+
+                    {/* Certificate Information */}
+                    {course.certification && (
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <Award className="h-8 w-8 text-green-600" />
+                          <h3 className="text-lg font-semibold text-green-800">Certificate of Completion</h3>
+                        </div>
+                        <p className="text-green-700 mb-4">
+                          Upon successful completion of this course, you will receive a certificate that validates your new skills and knowledge.
+                        </p>
+                        <div className="space-y-2 text-sm text-green-600">
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>Downloadable digital certificate</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>Shareable on LinkedIn and social media</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>Adds credibility to your profile</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {activeTab === 'curriculum' && (
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Course Lectures</h3>
-                    <div className="space-y-2">
-                      {lectures.length > 0 ? (
-                        lectures.map((lecture, index) => (
-                          <div
-                            key={lecture._id}
-                            onClick={() => handleVideoSelect(lecture)}
-                            className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                              currentVideo && currentVideo._id === lecture._id
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
-                            }`}
-                          >
-                            <div className="flex items-center space-x-4">
-                              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                                currentVideo && currentVideo._id === lecture._id
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-blue-100 text-blue-600'
-                              }`}>
-                                <Play className="h-4 w-4" />
+                  <div className="space-y-6">
+                    {/* Course Videos Section */}
+                    {videos.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">Course Videos</h3>
+                        <div className="space-y-2">
+                          {videos.map((video, index) => (
+                            <div
+                              key={video._id || index}
+                              onClick={() => handleVideoSelect(video)}
+                              className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
+                                currentVideo && currentVideo.title === video.title
+                                  ? 'border-blue-500 bg-blue-50'
+                                  : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                              }`}
+                            >
+                              <div className="flex items-center space-x-4">
+                                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                                  currentVideo && currentVideo.title === video.title
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-red-100 text-red-600'
+                                }`}>
+                                  <Play className="h-4 w-4" />
+                                </div>
+                                <div>
+                                  <h4 className="font-medium text-gray-900">{video.title}</h4>
+                                  <p className="text-sm text-gray-500">{video.description}</p>
+                                </div>
                               </div>
-                              <div>
-                                <h4 className="font-medium text-gray-900">{lecture.title}</h4>
-                                <p className="text-sm text-gray-500">{lecture.description}</p>
+                              <div className="text-sm text-gray-500">
+                                {video.duration}
                               </div>
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {lecture.duration}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-center py-8">
-                          <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                          <p className="text-gray-500">No lectures available for this course yet.</p>
+                          ))}
                         </div>
-                      )}
+                      </div>
+                    )}
+
+                    {/* Course Lectures Section */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">
+                        {videos.length > 0 ? 'Additional Lectures' : 'Course Lectures'}
+                      </h3>
+                      <div className="space-y-2">
+                        {lectures.length > 0 ? (
+                          lectures.map((lecture, index) => (
+                            <div
+                              key={lecture._id}
+                              onClick={() => handleVideoSelect(lecture)}
+                              className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
+                                currentVideo && currentVideo._id === lecture._id
+                                  ? 'border-blue-500 bg-blue-50'
+                                  : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                              }`}
+                            >
+                              <div className="flex items-center space-x-4">
+                                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                                  currentVideo && currentVideo._id === lecture._id
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-green-100 text-green-600'
+                                }`}>
+                                  <Play className="h-4 w-4" />
+                                </div>
+                                <div>
+                                  <h4 className="font-medium text-gray-900">{lecture.title}</h4>
+                                  <p className="text-sm text-gray-500">{lecture.description}</p>
+                                </div>
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {lecture.duration}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-8">
+                            <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                            <p className="text-gray-500">No lectures available for this course yet.</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -253,14 +326,7 @@ export default function CourseDetailsPage() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 mb-2">{course.instructor.name}</h3>
-                      <p className="text-gray-600 mb-4">{course.instructor.bio || 'Experienced educator and industry professional.'}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-2">About the Instructor</h4>
-                      <p className="text-gray-700">
-                        {course.instructor.name} is a passionate educator with years of experience in the field. 
-                        They bring real-world expertise and a commitment to student success to every course.
-                      </p>
+                      <p className="text-gray-600 mb-4">Course instructor for {course.title}</p>
                     </div>
                   </div>
                 )}
@@ -280,26 +346,12 @@ export default function CourseDetailsPage() {
                             />
                           ))}
                         </div>
-                        <p className="text-gray-600">{course.studentsEnrolled} reviews</p>
+                        <p className="text-gray-600">Course rating</p>
                       </div>
                     </div>
                     
-                    <div className="space-y-4">
-                      {[1, 2, 3].map(review => (
-                        <div key={review} className="border-b border-gray-200 pb-4">
-                          <div className="mb-2">
-                            <div className="font-semibold text-gray-900">Student {review}</div>
-                            <div className="flex items-center space-x-1">
-                              {[1, 2, 3, 4, 5].map(star => (
-                                <Star key={star} className="h-4 w-4 text-yellow-400 fill-current" />
-                              ))}
-                            </div>
-                          </div>
-                          <p className="text-gray-700">
-                            This course exceeded my expectations. The instructor explains complex concepts clearly and provides practical examples.
-                          </p>
-                        </div>
-                      ))}
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No reviews available yet. Be the first to review this course!</p>
                     </div>
                   </div>
                 )}
@@ -315,7 +367,7 @@ export default function CourseDetailsPage() {
                 <div className="space-y-4">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-gray-900 mb-2">
-                      {lectures.length > 0 ? '0%' : 'Ready'} 
+                      {(lectures.length + videos.length) > 0 ? '0%' : 'Ready'} 
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-3">
                       <div 
@@ -323,7 +375,7 @@ export default function CourseDetailsPage() {
                         style={{ width: '0%' }}
                       ></div>
                     </div>
-                    <p className="text-gray-600 mt-2">0 of {lectures.length} lectures completed</p>
+                    <p className="text-gray-600 mt-2">0 of {lectures.length + videos.length} items completed</p>
                   </div>
                   
                   <button className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105">
@@ -336,7 +388,6 @@ export default function CourseDetailsPage() {
                   <button className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105">
                     Enroll Now
                   </button>
-                  <p className="text-sm text-gray-600">30-day money-back guarantee</p>
                 </div>
               )}
             </div>
@@ -360,8 +411,8 @@ export default function CourseDetailsPage() {
                   <span className="font-medium">{course.duration}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Lectures</span>
-                  <span className="font-medium">{lectures.length}</span>
+                  <span className="text-gray-600">Content</span>
+                  <span className="font-medium">{lectures.length + videos.length} items</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Students</span>
@@ -369,7 +420,13 @@ export default function CourseDetailsPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Certificate</span>
-                  <span className="font-medium">{course.certification ? 'Included' : 'Not included'}</span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    course.certification 
+                      ? 'bg-green-100 text-green-800 border border-green-200' 
+                      : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {course.certification ? '✓ Certificate Included' : 'No Certificate'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -379,7 +436,6 @@ export default function CourseDetailsPage() {
               <h3 className="text-lg font-semibold mb-4">Your Instructor</h3>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">{course.instructor.name}</h4>
-                <p className="text-gray-600 text-sm mb-2">{course.instructor.bio || 'Experienced educator'}</p>
                 <div className="flex items-center space-x-1">
                   <Star className="h-4 w-4 text-yellow-400 fill-current" />
                   <span className="text-sm text-gray-600">{course.rating || 4.5} rating</span>

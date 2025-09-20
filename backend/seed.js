@@ -69,7 +69,30 @@ const courses = [
     studentsEnrolled: 1200,
     instructor: { name: 'Asif Rahman' },
     price: 2500,
-    tags: ['react', 'frontend', 'javascript']
+    tags: ['react', 'frontend', 'javascript'],
+    videos: [
+      {
+        title: 'React Tutorial for Beginners',
+        description: 'Complete React tutorial covering components, props, and state management.',
+        youtubeUrl: 'https://www.youtube.com/watch?v=bMknfKXIFA8',
+        duration: '3h 30m',
+        order: 1
+      },
+      {
+        title: 'React Hooks Explained',
+        description: 'Learn React Hooks including useState, useEffect, and custom hooks.',
+        youtubeUrl: 'https://www.youtube.com/watch?v=O6P86uwfdR0',
+        duration: '1h 45m',
+        order: 2
+      },
+      {
+        title: 'Building a React App',
+        description: 'Build a complete React application from scratch with modern best practices.',
+        youtubeUrl: 'https://www.youtube.com/watch?v=hQAHSlTtcmY',
+        duration: '2h 15m',
+        order: 3
+      }
+    ]
   },
   {
     title: 'Data Analysis with Python',
@@ -82,7 +105,30 @@ const courses = [
     studentsEnrolled: 900,
     instructor: { name: 'Dr. Mahbub Hasan' },
     price: 3000,
-    tags: ['python', 'data', 'pandas']
+    tags: ['python', 'data', 'pandas'],
+    videos: [
+      {
+        title: 'Python for Data Analysis - Complete Course',
+        description: 'Learn Python fundamentals for data analysis with pandas and numpy.',
+        youtubeUrl: 'https://www.youtube.com/watch?v=r-uOLxNrNk8',
+        duration: '4h 20m',
+        order: 1
+      },
+      {
+        title: 'Pandas Tutorial - Data Manipulation',
+        description: 'Master pandas for data cleaning, transformation, and analysis.',
+        youtubeUrl: 'https://www.youtube.com/watch?v=vmEHCJofslg',
+        duration: '3h 10m',
+        order: 2
+      },
+      {
+        title: 'Data Visualization with Python',
+        description: 'Create stunning visualizations using matplotlib and seaborn.',
+        youtubeUrl: 'https://www.youtube.com/watch?v=UO98lJQ3QGI',
+        duration: '2h 30m',
+        order: 3
+      }
+    ]
   },
   {
     title: 'UI/UX Design Fundamentals',
@@ -95,7 +141,30 @@ const courses = [
     studentsEnrolled: 700,
     instructor: { name: 'Fatima Sultana' },
     price: 2000,
-    tags: ['design', 'ui', 'ux']
+    tags: ['design', 'ui', 'ux'],
+    videos: [
+      {
+        title: 'UI/UX Design Tutorial for Beginners',
+        description: 'Learn the fundamentals of user interface and user experience design.',
+        youtubeUrl: 'https://www.youtube.com/watch?v=c9Wg6Cb_YlU',
+        duration: '2h 45m',
+        order: 1
+      },
+      {
+        title: 'Figma Tutorial - Complete Course',
+        description: 'Master Figma for creating professional UI/UX designs.',
+        youtubeUrl: 'https://www.youtube.com/watch?v=FTFaQWZBqQ8',
+        duration: '1h 55m',
+        order: 2
+      },
+      {
+        title: 'UX Research Methods',
+        description: 'Learn essential UX research techniques for better user experiences.',
+        youtubeUrl: 'https://www.youtube.com/watch?v=Qq3OiHQ-HCU',
+        duration: '1h 20m',
+        order: 3
+      }
+    ]
   }
 ];
 
