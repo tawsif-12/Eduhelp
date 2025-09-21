@@ -33,7 +33,10 @@ export function AuthProvider({ children }) {
   const login = async (email, password, userType = 'student') => {
     setIsLoading(true);
     try {
+      // Pass userType to authService for role enforcement
+      authService.loginRole = userType;
       const response = await authService.login(email, password);
+      authService.loginRole = undefined;
       // Handle the response structure with token and user
       const userData = response.user || response;
       const formattedUser = authService.formatUserData(userData);

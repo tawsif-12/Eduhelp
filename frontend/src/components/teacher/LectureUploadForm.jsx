@@ -21,6 +21,7 @@ export default function LectureUploadForm({ onSubmit, onCancel }) {
     e.preventDefault();
     const newErrors = {};
 
+
     if (!formData.title.trim()) {
       newErrors.title = 'Title is required';
     }
@@ -28,6 +29,9 @@ export default function LectureUploadForm({ onSubmit, onCancel }) {
       newErrors.youtubeUrl = 'YouTube URL is required';
     } else if (!extractYouTubeVideoId(formData.youtubeUrl)) {
       newErrors.youtubeUrl = 'Please enter a valid YouTube URL';
+    }
+    if (!formData.category || formData.category === '' || formData.category === 'Select category') {
+      newErrors.category = 'Category is required';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -39,7 +43,8 @@ export default function LectureUploadForm({ onSubmit, onCancel }) {
     const lectureData = {
       ...formData,
       videoId,
-      thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+      thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+      tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : []
     };
 
     onSubmit(lectureData);
@@ -110,7 +115,9 @@ export default function LectureUploadForm({ onSubmit, onCancel }) {
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 ${
+                errors.category ? 'border-red-500' : 'border-gray-300'
+              }`}
             >
               <option value="">Select category</option>
               <option value="programming">Programming</option>
@@ -121,6 +128,7 @@ export default function LectureUploadForm({ onSubmit, onCancel }) {
               <option value="language">Language</option>
               <option value="other">Other</option>
             </select>
+            {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
           </div>
         </div>
 

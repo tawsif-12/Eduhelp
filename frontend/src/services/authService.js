@@ -57,7 +57,7 @@ class AuthService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, role: this.loginRole || undefined }),
       });
 
       const data = await response.json();

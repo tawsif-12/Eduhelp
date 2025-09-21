@@ -34,17 +34,16 @@ export default function SignIn() {
 
     try {
       const user = await login(formData.email, formData.password, userType);
-      
+      // Always redirect teacher to teacher-dashboard after login
+      if (user.role === 'teacher') {
+        navigate('/teacher-dashboard', { replace: true });
+        return;
+      }
       // If user was redirected from a protected page, go back there
       if (from) {
         navigate(from, { replace: true });
       } else {
-        // Default redirect based on user's role
-        if (user.role === 'teacher') {
-          navigate('/teacher-dashboard');
-        } else {
-          navigate('/dashboard');
-        }
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Login error:', error);

@@ -13,10 +13,12 @@ export default function Profile() {
     bio: 'Passionate learner exploring new technologies and concepts.'
   });
 
-  // Redirect admin users to admin dashboard
+  // Redirect admin users to admin dashboard and teachers to teacher dashboard
   useEffect(() => {
     if (user && user.role === 'admin') {
       navigate('/admin');
+    } else if (user && user.role === 'teacher') {
+      navigate('/teacher-dashboard');
     }
   }, [user, navigate]);
 
@@ -32,8 +34,8 @@ export default function Profile() {
     );
   }
 
-  // If user is admin, don't render the profile page (will redirect)
-  if (user.role === 'admin') {
+  // If user is admin or teacher, don't render the profile page (will redirect)
+  if (user.role === 'admin' || user.role === 'teacher') {
     return null;
   }
 

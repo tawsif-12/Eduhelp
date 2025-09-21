@@ -92,7 +92,7 @@ router.post('/register', async (req, res) => {
 // POST - Login user
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+  const { email, password, role } = req.body;
     // TEST MODE: Bypass DB for admin login
     // Only allow login with the specific admin email and password
     if (
@@ -129,6 +129,10 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    // If role is provided, ensure it matches the user's role
+    if (role && user.role !== role) {
+      return res.status(403).json({ error: `This account is not registered as a ${role}.` });
     }
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
